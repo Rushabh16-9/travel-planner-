@@ -44,7 +44,7 @@ export default function ItineraryCard({ activity, index }: ItineraryCardProps) {
 
                 <span className={cn(
                     "px-3 py-1 rounded-full text-xs font-medium border",
-                    getTypeColor(activity.type || activity.vibe)
+                    getTypeColor(activity.type || activity.vibe || 'default')
                 )}>
                     {activity.type || activity.vibe}
                 </span>
