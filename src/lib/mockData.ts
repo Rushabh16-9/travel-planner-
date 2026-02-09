@@ -4,11 +4,14 @@ export type Importance = 'High' | 'Medium' | 'Low';
 
 export interface Activity {
   time: string;
-  name: string;
+  name?: string;
+  title?: string;
   description: string;
-  vibe: VibeType;
-  estimatedCost: number;
-  period: Period;
+  vibe?: VibeType;
+  type?: string;
+  estimatedCost?: number;
+  price?: number | string;
+  period?: Period;
   importance: Importance;
 }
 
