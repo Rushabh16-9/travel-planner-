@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     }
 
     // 3. Generate Itinerary with Gemini (SIMPLIFIED for speed)
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `Create a ${days}-day trip itinerary for "${query}".
 
 Context: ${context}
