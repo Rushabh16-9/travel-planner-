@@ -10,12 +10,10 @@ const config: Config = {
         extend: {
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
-                serif: ['Playfair Display', 'serif'],
             },
             colors: {
-                background: "#0b1121",
-                surface: "rgba(255, 255, 255, 0.05)",
-                gold: "#ffd700",
+                primary: "#FF385C", // Airbnb pink
+                secondary: "#00A699", // Teal accent
             },
         },
     },

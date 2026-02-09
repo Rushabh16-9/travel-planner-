@@ -40,41 +40,36 @@ export async function POST(req: Request) {
       context += `Real Local Attractions (incorporate these): ${amadeusData.map((poi: any) => poi.name).join(', ')}\n`;
     }
 
-    // 3. Generate Itinerary with Gemini
+    // 3. Generate Itinerary with Gemini (SIMPLIFIED for speed)
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const prompt = `
-      Act as an expert luxury travel planner. Create a detailed ${days}-day trip itinerary for: "${query}".
-      
-      DATA CONTEXT:
-      ${context}
-      
-      Requirements:
-      1. RETURN ONLY VALID JSON. No text, no markdown.
-      2. The structure must match this EXACTLY:
-      {
-        "destination": "${geoData.formatted || query}",
-        "duration": ${days}, 
-        "totalCost": 2500,
-        "itinerary": [
-          {
-            "day": 1,
-            "date": "Day 1",
-            "activities": [
-              {
-                "time": "09:00 AM",
-                "title": "Activity Name",
-                "description": "Engaging description.",
-                "type": "Adventure|relax|food|culture",
-                "price": 50,
-                "importance": "High"
-              }
-            ]
-          }
-        ]
-      }
-      
-      Ensure valid JSON. Do not include \`\`\`json blocks. Just the raw JSON object.
-    `;
+    const prompt = `Create a ${days}-day trip itinerary for "${query}".
+
+Context: ${context}
+
+Return ONLY valid JSON (no markdown, no text):
+{
+  "destination": "${geoData.formatted || query}",
+  "duration": ${days},
+  "totalCost": 2000,
+  "itinerary": [
+    {
+      "day": 1,
+      "date": "Day 1",
+      "activities": [
+        {
+          "time": "09:00 AM",
+          "title": "Activity Name",
+          "description": "Brief description",
+          "type": "Adventure",
+          "price": 50,
+          "importance": "High"
+        }
+      ]
+    }
+  ]
+}
+
+Include ${days} days with 4-5 activities per day. Keep descriptions concise.`;
 
     const result = await model.generateContent(prompt);
     const jsonString = result.response.text().replace(/```json|```/g, '').trim();

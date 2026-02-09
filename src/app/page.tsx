@@ -41,8 +41,14 @@ export default function Home() {
         {!tripData && !isLoading && (
           <>
             {error && (
-              <div className="max-w-md mx-auto mt-6 bg-red-500/10 border border-red-500/20 text-red-200 px-4 py-3 rounded-xl text-center backdrop-blur-md">
-                <p>{error}</p>
+              <div className="max-w-md mx-auto mt-6 mb-6 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl text-center">
+                <p className="font-medium">{error}</p>
+                <button
+                  onClick={() => setError(null)}
+                  className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+                >
+                  Dismiss
+                </button>
               </div>
             )}
             <Hero onSearch={handleSearch} />
@@ -51,10 +57,10 @@ export default function Home() {
 
         {/* State: Loading */}
         {isLoading && (
-          <div className="min-h-[80vh] flex flex-col items-center justify-center">
-            <div className="w-16 h-16 border-2 border-white/10 border-t-white rounded-full animate-spin mb-8" />
-            <h2 className="text-2xl font-serif text-white mb-2">Curating Experience</h2>
-            <p className="text-white/40">AI is designing your itinerary...</p>
+          <div className="min-h-[60vh] flex flex-col items-center justify-center">
+            <div className="w-16 h-16 border-4 border-gray-200 border-t-primary rounded-full animate-spin mb-6" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Creating your itinerary</h2>
+            <p className="text-gray-600">This may take a few seconds...</p>
           </div>
         )}
 

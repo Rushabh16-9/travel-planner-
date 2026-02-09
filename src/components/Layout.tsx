@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Plane } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -15,47 +14,39 @@ export default function Layout({ children, demoMode, onToggleDemoMode }: LayoutP
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 50);
+        const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     return (
-        <div className="min-h-screen relative selection:bg-gold selection:text-black">
+        <div className="min-h-screen bg-white">
 
-            {/* Cinematic Background */}
-            <div className="fixed inset-0 -z-10 bg-[#0b1121]">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0b1121]/50 to-[#0b1121]" />
-                {/* Subtle Ambient Light */}
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-900/10 rounded-full blur-[120px]" />
-            </div>
-
-            {/* Navbar - Minimal & Elegant */}
+            {/* Clean Navbar */}
             <nav
                 className={cn(
-                    'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
-                    scrolled ? 'py-4 glass-panel border-b-0' : 'py-8 bg-transparent'
+                    'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+                    scrolled ? 'bg-white border-b border-gray-200 shadow-sm' : 'bg-white'
                 )}
             >
-                <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 flex items-center justify-center border border-white/20 rounded-full">
-                            <Plane className="w-4 h-4 text-white" />
+                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 flex items-center justify-center bg-primary rounded-lg">
+                            <Plane className="w-5 h-5 text-white" />
                         </div>
-                        <span className="text-lg font-serif tracking-wide text-white">VoyageAI</span>
+                        <span className="text-xl font-bold text-gray-900">VoyageAI</span>
                     </div>
 
                     <button
                         onClick={onToggleDemoMode}
-                        className="text-xs font-medium tracking-widest uppercase text-white/60 hover:text-white transition-colors"
+                        className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
                     >
-                        {demoMode ? 'Live Mode' : 'Switch to Demo'}
+                        {demoMode ? 'Live Mode' : 'Demo'}
                     </button>
                 </div>
             </nav>
 
-            <main className="relative z-10 w-full animate-in fade-in duration-700">
+            <main className="relative w-full pt-16">
                 {children}
             </main>
         </div>
