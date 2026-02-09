@@ -1,30 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 
-   Refactored to standard CSS to avoid @apply build errors with Turbopack/PostCSS.
-   We still use Tailwind text/bg colors via standard CSS variables or just basic CSS where appropriate.
-*/
-
 @layer base {
-
-  /* Force custom cursor everywhere */
-  body,
-  button,
-  a,
-  input,
-  textarea,
-  select {
-    cursor: none !important;
-  }
-
   body {
-    background-color: #020617;
-    color: #ffffff;
+    background-color: #0b1121;
+    /* Deep Cinematic Navy */
+    color: #f8fafc;
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
@@ -35,69 +20,46 @@
   h4,
   h5,
   h6 {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Playfair Display', serif;
+    letter-spacing: -0.02em;
   }
 }
 
 @layer utilities {
 
-  /* Glassmorphism */
-  .glass {
-    backdrop-filter: blur(24px);
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Premium Glass - No Borders, Just Depth */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   }
 
-  .glass-hover {
-    transition: all 0.3s ease;
+  .glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .glass-hover:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
   }
 
-  /* Emerald Glow */
-  .glow-emerald {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-  }
-
-  .glow-emerald-lg {
-    box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
-  }
-
-  /* Shimmer Loading */
-  .shimmer {
-    background: linear-gradient(90deg,
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        rgba(255, 255, 255, 0.05) 100%);
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite;
-  }
-
-  @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-
-    100% {
-      background-position: 200% 0;
-    }
-  }
-
-  /* Grid Pattern */
-  .grid-pattern {
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 50px 50px;
+  /* Text Gradients */
+  .text-gradient-gold {
+    background: linear-gradient(to right, #fceed2, #ffd700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }
 
-/* Scrollbar */
+/* Scrollbar - Minimal */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -106,16 +68,5 @@
 
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-  * {
-    cursor: auto !important;
-  }
+  border-radius: 20px;
 }

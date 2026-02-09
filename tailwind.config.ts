@@ -10,12 +10,12 @@ const config: Config = {
         extend: {
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
-                display: ['Outfit', 'sans-serif'],
+                serif: ['Playfair Display', 'serif'],
             },
             colors: {
-                border: "hsl(var(--border))",
-                background: "#020617",
-                foreground: "#ffffff",
+                background: "#0b1121",
+                surface: "rgba(255, 255, 255, 0.05)",
+                gold: "#ffd700",
             },
         },
     },
