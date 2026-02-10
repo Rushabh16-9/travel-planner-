@@ -39,8 +39,19 @@ export default function Hero({ onSearch }: HeroProps) {
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleSearch = (query?: string) => {
-        const finalQuery = query || inputRef.current?.value;
-        if (onSearch && finalQuery) {
+        // If a pre-defined query (from popular cards) is passed, use it directly
+        if (query) {
+            if (onSearch) onSearch(query);
+            return;
+        }
+
+        const destination = inputRef.current?.value;
+        const days = (document.getElementById('days-select') as HTMLSelectElement)?.value;
+        const budget = (document.getElementById('budget-select') as HTMLSelectElement)?.value;
+
+        if (onSearch && destination) {
+            // Construct a natural language query for the AI
+            const finalQuery = `${destination}, ${days} Days, ${budget} Budget`;
             onSearch(finalQuery);
         }
     };
@@ -79,29 +90,70 @@ export default function Hero({ onSearch }: HeroProps) {
                     Let AI craft your perfect escape in seconds.
                 </motion.p>
 
-                {/* Glass Search Bar */}
+                {/* Glass Search Form "The Cockpit" */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="glass-dark p-2 rounded-full max-w-2xl mx-auto flex items-center mb-20"
+                    className="glass-dark p-6 rounded-3xl max-w-4xl mx-auto mb-20 shadow-2xl border border-white/10"
                 >
-                    <div className="pl-6 text-white/50">
-                        <MapPin className="w-6 h-6" />
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+
+                        {/* Destination Input */}
+                        <div className="md:col-span-5 flex flex-col items-start gap-2">
+                            <label className="text-white/80 text-sm font-semibold tracking-wide ml-1">DESTINATION</label>
+                            <div className="relative w-full">
+                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    className="w-full bg-white text-gray-900 pl-12 pr-4 py-4 rounded-xl font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary shadow-inner"
+                                    placeholder="e.g. Kyoto, Japan"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Days Input */}
+                        <div className="md:col-span-3 flex flex-col items-start gap-2">
+                            <label className="text-white/80 text-sm font-semibold tracking-wide ml-1">DURATION</label>
+                            <select
+                                id="days-select"
+                                className="w-full bg-white text-gray-900 px-4 py-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-inner"
+                            >
+                                <option value="3">3 Days</option>
+                                <option value="5" selected>5 Days</option>
+                                <option value="7">7 Days</option>
+                                <option value="10">10 Days</option>
+                                <option value="14">14 Days</option>
+                            </select>
+                        </div>
+
+                        {/* Budget Input */}
+                        <div className="md:col-span-4 flex flex-col items-start gap-2">
+                            <label className="text-white/80 text-sm font-semibold tracking-wide ml-1">BUDGET</label>
+                            <select
+                                id="budget-select"
+                                className="w-full bg-white text-gray-900 px-4 py-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-inner"
+                            >
+                                <option value="Cheap">Budget (Backpacker)</option>
+                                <option value="Moderate" selected>Moderate (Standard)</option>
+                                <option value="Luxury">Luxury (High End)</option>
+                            </select>
+                        </div>
+
+                        {/* Search Button (Full Width on Mobile, dedicated slot on Desktop) */}
+                        <div className="md:col-span-12 mt-4">
+                            <button
+                                onClick={() => handleSearch()}
+                                className="w-full bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-primary/50 flex items-center justify-center gap-2"
+                            >
+                                <Search className="w-5 h-5" />
+                                Plan My Ultimate Trip
+                            </button>
+                        </div>
+
                     </div>
-                    <input
-                        ref={inputRef}
-                        type="text"
-                        className="flex-1 bg-transparent text-white px-4 py-4 text-lg placeholder:text-white/50 focus:outline-none"
-                        placeholder="Where do you want to go? (e.g., Bali)"
-                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    />
-                    <button
-                        onClick={() => handleSearch()}
-                        className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-full font-bold transition-all shadow-lg hover:shadow-primary/50"
-                    >
-                        Plan Trip
-                    </button>
                 </motion.div>
 
                 {/* Popular Destinations (Floating Cards) */}
