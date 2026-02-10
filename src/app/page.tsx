@@ -6,7 +6,7 @@ import Hero from '@/components/Hero';
 import ItineraryCard from '@/components/ItineraryCard';
 import BudgetTracker from '@/components/BudgetTracker';
 import { motion } from '@/lib/motion';
-import { MapPin, Calendar, ArrowLeft } from 'lucide-react';
+import { MapPin, Calendar, ArrowLeft, Loader2 } from 'lucide-react';
 
 export default function Home() {
   const [demoMode, setDemoMode] = useState(false);
@@ -35,17 +35,17 @@ export default function Home() {
 
   return (
     <Layout demoMode={demoMode} onToggleDemoMode={() => setDemoMode(!demoMode)}>
-      <div className="min-h-screen pb-20">
+      <div className="min-h-screen">
 
         {/* State: Hero / Search */}
         {!tripData && !isLoading && (
           <>
             {error && (
-              <div className="max-w-md mx-auto mt-6 mb-6 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl text-center">
+              <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 glass-card px-8 py-4 text-red-600 rounded-full flex items-center gap-4">
                 <p className="font-medium">{error}</p>
                 <button
                   onClick={() => setError(null)}
-                  className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+                  className="bg-red-100 hover:bg-red-200 p-1 rounded-full px-3 text-xs font-bold"
                 >
                   Dismiss
                 </button>
@@ -57,87 +57,104 @@ export default function Home() {
 
         {/* State: Loading */}
         {isLoading && (
-          <div className="min-h-[60vh] flex flex-col items-center justify-center">
-            <div className="w-16 h-16 border-4 border-gray-200 border-t-primary rounded-full animate-spin mb-6" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Creating your itinerary</h2>
-            <p className="text-gray-600">This may take a few seconds...</p>
+          <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="mb-8"
+            >
+              <Loader2 className="w-16 h-16 text-primary" />
+            </motion.div>
+            <h2 className="text-3xl font-serif font-bold text-gray-900 mb-2">Crafting your escape...</h2>
+            <p className="text-gray-500">Checking flights, hotels, and hidden gems.</p>
           </div>
         )}
 
-        {/* State: Results */}
+        {/* State: Results (Modernized) */}
         {tripData && !isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="pt-24 px-6 max-w-5xl mx-auto"
-          >
-            <button
-              onClick={() => setTripData(null)}
-              className="flex items-center gap-2 text-white/40 hover:text-white mb-8 transition-colors text-sm uppercase tracking-widest"
-            >
-              <ArrowLeft className="w-4 h-4" /> Back to Search
-            </button>
+          <div className="relative min-h-screen bg-gray-50">
 
-            {/* Destination Header */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 items-end">
-              <div>
-                <h1 className="text-6xl md:text-7xl font-serif text-white mb-4 leading-none">
+            {/* Header / Banner Image */}
+            <div className="relative h-[50vh] w-full overflow-hidden">
+              {tripData.image ? (
+                <img src={tripData.image} className="w-full h-full object-cover" alt="Destination" />
+              ) : (
+                <div className="w-full h-full bg-slate-900" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-50 via-black/20 to-black/40" />
+
+              <div className="absolute bottom-0 left-0 right-0 p-8 max-w-7xl mx-auto">
+                <button
+                  onClick={() => setTripData(null)}
+                  className="mb-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm uppercase tracking-widest bg-black/20 backdrop-blur-sm px-4 py-2 rounded-full w-fit"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Back to Search
+                </button>
+                <motion.h1
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  className="text-6xl md:text-8xl font-serif font-bold text-white mb-2 drop-shadow-xl"
+                >
                   {tripData.destination}
-                </h1>
-                <div className="flex items-center gap-6 text-white/60">
+                </motion.h1>
+                <div className="flex items-center gap-6 text-white/90 text-lg font-medium">
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
+                    <Calendar className="w-5 h-5" />
                     <span>{tripData.duration} Days</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    <span>Europe</span>
+                    <MapPin className="w-5 h-5" />
+                    <span>Verified Itinerary</span>
                   </div>
                 </div>
               </div>
-
-              {tripData.image && (
-                <div className="h-[300px] rounded-2xl overflow-hidden relative shadow-2xl">
-                  <img src={tripData.image} className="w-full h-full object-cover grayscale-[0.2]" alt="Destination" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0b1121] to-transparent opacity-60" />
-                </div>
-              )}
             </div>
 
-            {/* Content Split */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-              {/* Left: Itinerary (2 cols) */}
-              <div className="lg:col-span-2 space-y-12">
-                {tripData.itinerary?.map((day: any) => (
-                  <div key={day.day}>
-                    <h3 className="text-2xl font-serif text-white mb-6 border-l-2 border-white/20 pl-4">
-                      Day {day.day}
-                    </h3>
-                    <div className="space-y-4">
-                      {day.activities.map((activity: any, i: number) => (
-                        <ItineraryCard key={i} activity={activity} index={i} />
-                      ))}
+            {/* Content Container */}
+            <div className="max-w-7xl mx-auto px-6 -mt-12 relative z-10 pb-20">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                {/* Left: Itinerary Timeline */}
+                <div className="lg:col-span-2 space-y-8">
+                  {tripData.itinerary?.map((day: any, i: number) => (
+                    <motion.div
+                      key={day.day}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100"
+                    >
+                      <div className="flex items-baseline justify-between mb-8 border-b border-gray-100 pb-4">
+                        <h3 className="text-3xl font-serif text-gray-900">Day {day.day}</h3>
+                        <span className="text-gray-400 font-medium">Explore & Discover</span>
+                      </div>
+                      <div className="space-y-6">
+                        {day.activities.map((activity: any, idx: number) => (
+                          <ItineraryCard key={idx} activity={activity} index={idx} />
+                        ))}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Right: Sticky Sidebar */}
+                <div className="space-y-6">
+                  <div className="sticky top-24">
+                    <BudgetTracker totalCost={tripData.totalCost} />
+
+                    <div className="mt-6 bg-gradient-to-br from-primary to-orange-500 rounded-2xl p-6 text-white shadow-xl">
+                      <h4 className="font-serif text-xl mb-4 font-bold">Travel Tips</h4>
+                      <p className="text-white/90 text-sm leading-relaxed opacity-90">
+                        Don't forget to check local visa requirements and enable international payments on your cards.
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {/* Right: Budget & Summary (1 col) */}
-              <div className="space-y-6">
-                <div className="sticky top-24">
-                  <BudgetTracker totalCost={tripData.totalCost} />
-
-                  <div className="mt-8 p-6 glass-panel rounded-xl">
-                    <h4 className="font-serif text-lg mb-4">Travel Notes</h4>
-                    <p className="text-white/40 text-sm leading-relaxed">
-                      This itinerary is optimized for a balanced mix of culture and relaxation.
-                      Weather conditions are favorable.
-                    </p>
-                  </div>
                 </div>
+
               </div>
             </div>
-          </motion.div>
+
+          </div>
         )}
       </div>
     </Layout>

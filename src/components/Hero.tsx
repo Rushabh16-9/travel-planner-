@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { Search } from 'lucide-react';
+import { Search, MapPin } from 'lucide-react';
 import { motion } from '@/lib/motion';
 
 interface HeroProps {
@@ -28,18 +28,6 @@ const FEATURED_CITIES = [
         image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=600&auto=format&fit=crop',
     },
     {
-        name: 'Bali',
-        country: 'Indonesia',
-        query: 'Bali, Indonesia, 5 Days',
-        image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=600&auto=format&fit=crop',
-    },
-    {
-        name: 'Dubai',
-        country: 'UAE',
-        query: 'Dubai, UAE, 4 Days',
-        image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=600&auto=format&fit=crop',
-    },
-    {
         name: 'Santorini',
         country: 'Greece',
         query: 'Santorini, Greece, 5 Days',
@@ -58,85 +46,88 @@ export default function Hero({ onSearch }: HeroProps) {
     };
 
     return (
-        <div className="relative bg-white py-16 px-6">
-            <div className="max-w-4xl mx-auto text-center">
+        <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+
+            {/* Background Image with Parallax-like fix */}
+            <div className="absolute inset-0 z-0">
+                <img
+                    src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop"
+                    alt="Hero Background"
+                    className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+            </div>
+
+            <div className="relative z-10 w-full max-w-5xl px-6 pt-20 text-center">
 
                 {/* Heading */}
                 <motion.h1
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-5xl md:text-6xl font-bold text-gray-900 mb-4"
+                    transition={{ duration: 0.8 }}
+                    className="text-6xl md:text-8xl font-serif font-bold text-white mb-6 drop-shadow-2xl"
                 >
-                    Plan your next adventure
+                    Wanderlust, <span className="text-primary italic">Reimagined.</span>
                 </motion.h1>
 
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-xl text-gray-600 mb-12"
+                    transition={{ delay: 0.2, duration: 0.8 }}
+                    className="text-xl md:text-2xl text-white/90 mb-12 font-light tracking-wide max-w-2xl mx-auto"
                 >
-                    AI-powered itineraries in seconds
+                    Let AI craft your perfect escape in seconds.
                 </motion.p>
 
-                {/* Search Bar */}
+                {/* Glass Search Bar */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="relative max-w-2xl mx-auto mb-16"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="glass-dark p-2 rounded-full max-w-2xl mx-auto flex items-center mb-20"
                 >
-                    <div className="flex items-center bg-white border-2 border-gray-300 rounded-full px-6 py-4 shadow-lg hover:shadow-xl transition-shadow focus-within:border-primary">
-                        <Search className="w-6 h-6 text-gray-400 mr-3" />
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            className="flex-1 bg-transparent text-gray-900 placeholder:text-gray-400 focus:outline-none text-lg"
-                            placeholder="Where to? (e.g., Paris, 3 days)"
-                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                        />
-                        <button
-                            onClick={() => handleSearch()}
-                            className="ml-4 bg-primary text-white px-8 py-3 rounded-full font-semibold hover:bg-primary/90 transition-colors"
-                        >
-                            Search
-                        </button>
+                    <div className="pl-6 text-white/50">
+                        <MapPin className="w-6 h-6" />
                     </div>
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        className="flex-1 bg-transparent text-white px-4 py-4 text-lg placeholder:text-white/50 focus:outline-none"
+                        placeholder="Where do you want to go? (e.g., Bali)"
+                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    />
+                    <button
+                        onClick={() => handleSearch()}
+                        className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-full font-bold transition-all shadow-lg hover:shadow-primary/50"
+                    >
+                        Plan Trip
+                    </button>
                 </motion.div>
 
-                {/* Featured Destinations */}
+                {/* Popular Destinations (Floating Cards) */}
                 <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="mb-8"
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
                 >
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6 text-left">Popular destinations</h2>
-
-                    {/* Horizontal Scroll */}
-                    <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+                    <p className="text-white/70 text-sm tracking-widest uppercase mb-6 font-semibold">Popular Destinations</p>
+                    <div className="flex justify-center gap-6 flex-wrap">
                         {FEATURED_CITIES.map((city, idx) => (
-                            <motion.button
+                            <button
                                 key={city.name}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.4 + idx * 0.05 }}
                                 onClick={() => handleSearch(city.query)}
-                                className="flex-shrink-0 w-64 snap-start group"
+                                className="group relative w-40 h-56 rounded-2xl overflow-hidden cursor-pointer shadow-2xl transition-transform hover:-translate-y-2"
                             >
-                                <div className="relative h-80 rounded-2xl overflow-hidden card-shadow-hover transition-smooth">
-                                    <img
-                                        src={city.image}
-                                        alt={city.name}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                                    <div className="absolute bottom-4 left-4 text-left">
-                                        <h3 className="text-2xl font-bold text-white mb-1">{city.name}</h3>
-                                        <p className="text-white/80 text-sm">{city.country}</p>
-                                    </div>
+                                <img
+                                    src={city.image}
+                                    alt={city.name}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                                <div className="absolute bottom-4 left-0 right-0 p-2">
+                                    <h3 className="text-white font-serif text-lg">{city.name}</h3>
                                 </div>
-                            </motion.button>
+                            </button>
                         ))}
                     </div>
                 </motion.div>
