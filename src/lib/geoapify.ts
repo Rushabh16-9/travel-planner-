@@ -6,7 +6,12 @@ export async function getCoordinates(location: string) {
 
     try {
         const response = await fetch(url);
-        if (!response.ok) throw new Error("Failed to fetch coordinates");
+        if (!response.ok) {
+            console.error(`Geoapify Failed: ${response.status} ${response.statusText}`);
+            const text = await response.text();
+            console.error("Geoapify Response:", text);
+            throw new Error(`Failed to fetch coordinates: ${response.status}`);
+        }
 
         const data = await response.json();
         if (!data.features || data.features.length === 0) {

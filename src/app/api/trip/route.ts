@@ -10,25 +10,38 @@ const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_KEY || '');
 export async function POST(req: Request) {
   try {
     const { query, days = 3 } = await req.json();
+    console.log("🚀 API Received Query:", query, "Days:", days);
 
     if (!query) {
       return NextResponse.json({ error: "Destination required" }, { status: 400 });
     }
 
     // 1. Parallel Data Fetching
-    const geoData = await getCoordinates(query);
+    // 1. Parallel Data Fetching
+    let geoData = await getCoordinates(query);
+    let weatherData = null;
+    let amadeusData: any[] = [];
+    let destinationImage = null;
+
     if (!geoData) {
-      return NextResponse.json({ error: "Location not found" }, { status: 404 });
+      console.warn("⚠️ Geoapify failed or returned no results. Proceeding without location data.");
+      // Fallback: Proceed with just the query, skip location-dependent services
+      destinationImage = await getDestinationImage(query);
+    } else {
+      console.log("✅ Geoapify Success:", geoData);
+      try {
+        [weatherData, destinationImage, amadeusData] = await Promise.all([
+          getWeather(geoData.lat, geoData.lon).catch(e => { console.error("Weather Failed:", e); return null; }),
+          getDestinationImage(query).catch(e => { console.error("Image Failed:", e); return null; }),
+          getAmadeusData(geoData.lat, geoData.lon).catch(e => { console.error("Amadeus Failed:", e); return []; })
+        ]);
+      } catch (e) {
+        console.error("Context Fetching Partial Failure:", e);
+      }
     }
 
-    const [weatherData, destinationImage, amadeusData] = await Promise.all([
-      getWeather(geoData.lat, geoData.lon),
-      getDestinationImage(query),
-      getAmadeusData(geoData.lat, geoData.lon)
-    ]);
-
     // 2. Prepare Context
-    let context = `Destination: ${geoData.formatted}\n\n`;
+    let context = `Destination: ${geoData?.formatted || query}\n\n`;
 
     if (weatherData) {
       const temp = weatherData.current.temperature;
@@ -45,23 +58,23 @@ export async function POST(req: Request) {
     const ollamaModel = process.env.OLLAMA_MODEL; // e.g., "kimi-k2.5"
     const kimiKey = process.env.KIMI_API_KEY;
 
-    // --- Priority 1: Ollama (Local) ---
+    // --- Priority 1: Ollama (Local / Cloud Native) ---
     if (ollamaModel) {
       try {
-        const response = await fetch("http://127.0.0.1:11434/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: ollamaModel,
-            messages: [
-              { role: "system", content: "You are a travel assistant. Return ONLY valid JSON." },
-              {
-                role: "user", content: `Create a ${days}-day trip itinerary for "${query}".
+        const baseUrl = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
+        console.log(`🔌 Connecting to Ollama: ${baseUrl} Model: ${ollamaModel}`);
+
+        const requestBody = {
+          model: ollamaModel,
+          messages: [
+            { role: "system", content: "You are a travel assistant. Return ONLY valid JSON." },
+            {
+              role: "user", content: `Create a ${days}-day trip itinerary for "${query}".
 Context: ${context}
 
 Output format:
 {
-  "destination": "${geoData.formatted || query}",
+  "destination": "${geoData?.formatted || query}",
   "duration": ${days},
   "totalCost": 2000,
   "itinerary": [
@@ -82,23 +95,70 @@ Output format:
   ]
 }
 Include ${days} days.`
-              }
-            ],
-            stream: false,
-            format: "json" // Ollama JSON mode
-          })
+            }
+          ],
+          stream: true, // Enable streaming for "Thinking" effect
+          options: { temperature: 0.3 }
+        };
+
+        console.log("Sending to Ollama:", JSON.stringify(requestBody, null, 2));
+
+        const response = await fetch(`${baseUrl}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody)
         });
 
-        const data = await response.json();
-        if (!data.message?.content) throw new Error("Ollama - No content");
+        if (response.status === 401) {
+          throw new Error("Ollama 401 Unauthorized: Check your public key (id_ed25519.pub) on ollama.com");
+        }
 
-        tripData = JSON.parse(data.message.content);
+        if (!response.ok) throw new Error(`Ollama Error: ${response.statusText}`);
 
-      } catch (ollamaError) {
-        console.error("Ollama Failed:", ollamaError);
-        // Fallthrough to Kimi/Gemini
+        // Handle Stream
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let fullContent = "";
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split("\n");
+            for (const line of lines) {
+              if (!line.trim()) continue;
+              try {
+                const json = JSON.parse(line);
+                if (json.message?.content) fullContent += json.message.content;
+                if (json.done) break;
+              } catch (e) { /* ignore partials */ }
+            }
+          }
+        }
+
+        if (!fullContent) throw new Error("Ollama - No content received");
+
+        console.log("Ollama Raw Output:", fullContent);
+
+        try {
+          const jsonString = fullContent.replace(/```json|```/g, '').trim();
+          tripData = JSON.parse(jsonString);
+        } catch (e) {
+          console.error("JSON Parse Failed. Raw:", fullContent);
+          throw new Error("Ollama returned invalid JSON");
+        }
+
+      } catch (ollamaError: any) {
+        console.error("Ollama Failed:", ollamaError.message);
+        // Fallthrough if not 401?
+        if (ollamaError.message.includes("401")) {
+          // For now just log, execution continues to Priority 2
+        }
       }
     }
+
+
 
     if (!tripData && kimiKey) {
       // --- Priority 2: Kimi (Moonshot Cloud) ---
@@ -122,7 +182,7 @@ Context: ${context}
 
 Output format:
 {
-  "destination": "${geoData.formatted || query}",
+  "destination": "${geoData?.formatted || query}",
   "duration": ${days},
   "totalCost": 2000,
   "itinerary": [
@@ -167,7 +227,7 @@ Context: ${context}
 
 Return ONLY valid JSON (no markdown, no text):
 {
-  "destination": "${geoData.formatted || query}",
+  "destination": "${geoData?.formatted || query}",
   "duration": ${days},
   "totalCost": 2000,
   "itinerary": [
@@ -197,7 +257,9 @@ Include ${days} days with 4-5 activities per day. Keep descriptions concise.`;
 
     // Inject real image
     tripData.image = destinationImage;
-    tripData.coordinates = { lat: geoData.lat, lon: geoData.lon };
+    if (geoData) {
+      tripData.coordinates = { lat: geoData.lat, lon: geoData.lon };
+    }
 
     return NextResponse.json(tripData);
 
