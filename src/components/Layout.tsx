@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plane } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -19,7 +20,6 @@ export default function Layout({ children, demoMode, onToggleDemoMode }: LayoutP
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    return (
     return (
         <div className="min-h-screen bg-[#020617] relative selection:bg-emerald-500/30 selection:text-emerald-200">
 

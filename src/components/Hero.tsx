@@ -2,7 +2,8 @@
 
 import { useRef } from 'react';
 import { Search, MapPin, Calendar, DollarSign } from 'lucide-react';
-import { motion } from '@/lib/motion';
+import { motion, Variants } from 'framer-motion';
+import Image from 'next/image';
 
 interface HeroProps {
     onSearch?: (query: string) => void;
@@ -14,7 +15,7 @@ const FEATURED_CITIES = [
         country: 'France',
         query: 'Paris, France, 3 Days',
         image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=600&auto=format&fit=crop',
-        size: 'large', // New property for Masonry
+        size: 'large',
     },
     {
         name: 'Tokyo',
@@ -40,7 +41,7 @@ const FEATURED_CITIES = [
 ];
 
 // Stagger container for smooth entry
-const containerVariants = {
+const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
         opacity: 1,
@@ -51,9 +52,13 @@ const containerVariants = {
     },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 50 } },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: { type: 'spring' as const, stiffness: 50 }
+    },
 };
 
 export default function Hero({ onSearch }: HeroProps) {
@@ -80,10 +85,13 @@ export default function Hero({ onSearch }: HeroProps) {
 
             {/* Background Image with optimized layout */}
             <div className="absolute inset-0 z-0">
-                <img
+                <Image
                     src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop"
                     alt="Hero Background"
-                    className="w-full h-full object-cover opacity-80"
+                    fill
+                    className="object-cover opacity-80"
+                    priority
+                    sizes="100vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[#020617]" />
             </div>
@@ -193,10 +201,12 @@ export default function Hero({ onSearch }: HeroProps) {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                             >
-                                <img
+                                <Image
                                     src={city.image}
                                     alt={city.name}
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                    fill
+                                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
 
