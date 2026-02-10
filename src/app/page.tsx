@@ -14,14 +14,14 @@ export default function Home() {
   const [tripData, setTripData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = async (query: string) => {
+  const handleSearch = async (query: string, days: number) => {
     setIsLoading(true);
     setError(null);
     try {
       const response = await fetch('/api/trip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, days: 3 }),
+        body: JSON.stringify({ query, days }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);

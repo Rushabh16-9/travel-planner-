@@ -6,7 +6,7 @@ import { motion, Variants } from 'framer-motion';
 import Image from 'next/image';
 
 interface HeroProps {
-    onSearch?: (query: string) => void;
+    onSearch?: (query: string, days: number) => void;
 }
 
 const FEATURED_CITIES = [
@@ -65,18 +65,27 @@ export default function Hero({ onSearch }: HeroProps) {
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleSearch = (query?: string) => {
+        // Default to 3 days if not specified or found
+        let days = 3;
+        const daysSelect = document.getElementById('days-select') as HTMLSelectElement;
+        if (daysSelect && daysSelect.value) {
+            days = parseInt(daysSelect.value);
+        }
+
         if (query) {
-            if (onSearch) onSearch(query);
+            // Extract days from query if possible, otherwise use default
+            if (onSearch) onSearch(query, days);
             return;
         }
 
         const destination = inputRef.current?.value;
-        const days = (document.getElementById('days-select') as HTMLSelectElement)?.value;
-        const budget = (document.getElementById('budget-select') as HTMLSelectElement)?.value;
+        const currency = (document.getElementById('currency-select') as HTMLSelectElement)?.value;
+        const amount = (document.getElementById('budget-amount') as HTMLInputElement)?.value;
 
         if (onSearch && destination) {
-            const finalQuery = `${destination}, ${days} Days, ${budget} Budget`;
-            onSearch(finalQuery);
+            const budgetString = amount ? `${currency} ${amount}` : 'Flexible';
+            const finalQuery = `${destination}, ${budgetString} Budget`;
+            onSearch(finalQuery, days);
         }
     };
 
@@ -157,18 +166,30 @@ export default function Hero({ onSearch }: HeroProps) {
                         {/* Budget */}
                         <div className="md:col-span-4 flex flex-col gap-2 text-left">
                             <label className="text-emerald-400/90 text-xs font-bold tracking-[0.2em] ml-2 uppercase">Budget</label>
-                            <div className="relative group">
-                                <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5 pointer-events-none" />
+                            <div className="relative group flex items-center">
+                                <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5 pointer-events-none z-10" />
+
+                                {/* Currency Select */}
                                 <select
-                                    id="budget-select"
-                                    defaultValue="Moderate"
-                                    className="w-full bg-white/5 text-white pl-12 pr-8 py-4 rounded-2xl font-medium text-lg appearance-none cursor-pointer focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50 transition-all border border-white/5 hover:border-white/20"
+                                    id="currency-select"
+                                    defaultValue="USD"
+                                    className="w-[35%] bg-white/5 text-white pl-12 pr-2 py-4 rounded-l-2xl font-medium text-lg appearance-none cursor-pointer focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50 transition-all border border-white/5 hover:border-white/20 border-r-0"
                                 >
-                                    <option value="Cheap" className="bg-slate-900 text-white">Backpacker</option>
-                                    <option value="Moderate" className="bg-slate-900 text-white">Moderate</option>
-                                    <option value="Luxury" className="bg-slate-900 text-white">Luxury</option>
+                                    <option value="USD" className="bg-slate-900 text-white">USD ($)</option>
+                                    <option value="INR" className="bg-slate-900 text-white">INR (₹)</option>
+                                    <option value="EUR" className="bg-slate-900 text-white">EUR (€)</option>
+                                    <option value="GBP" className="bg-slate-900 text-white">GBP (£)</option>
+                                    <option value="JPY" className="bg-slate-900 text-white">JPY (¥)</option>
                                 </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/30">▼</div>
+
+                                {/* Budget Amount Input */}
+                                <input
+                                    id="budget-amount"
+                                    type="number"
+                                    placeholder="2000"
+                                    className="w-[65%] bg-white/5 text-white pl-4 pr-4 py-4 rounded-r-2xl font-medium text-lg placeholder:text-white/30 focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50 transition-all border border-white/5 hover:border-white/20 border-l-white/10"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                />
                             </div>
                         </div>
 

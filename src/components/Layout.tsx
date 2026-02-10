@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Plane } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
 
 interface LayoutProps {
     children: React.ReactNode;
