@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { Search, MapPin } from 'lucide-react';
+import { Search, MapPin, Calendar, DollarSign } from 'lucide-react';
 import { motion } from '@/lib/motion';
 
 interface HeroProps {
@@ -97,17 +97,17 @@ export default function Hero({ onSearch }: HeroProps) {
                     transition={{ delay: 0.4 }}
                     className="glass-dark p-6 rounded-3xl max-w-4xl mx-auto mb-20 shadow-2xl border border-white/10"
                 >
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
 
                         {/* Destination Input */}
-                        <div className="md:col-span-5 flex flex-col items-start gap-2">
-                            <label className="text-white/80 text-sm font-semibold tracking-wide ml-1">DESTINATION</label>
-                            <div className="relative w-full">
-                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
+                        <div className="md:col-span-5 flex flex-col gap-2">
+                            <label className="text-white/90 text-xs font-bold tracking-[0.2em] ml-1 uppercase">Destination</label>
+                            <div className="relative group">
+                                <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-primary w-6 h-6 transition-colors group-hover:text-primary/80" />
                                 <input
                                     ref={inputRef}
                                     type="text"
-                                    className="w-full bg-white text-gray-900 pl-12 pr-4 py-4 rounded-xl font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary shadow-inner"
+                                    className="w-full bg-white/95 backdrop-blur-sm text-slate-900 pl-14 pr-4 py-5 rounded-2xl font-bold text-xl placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary/30 shadow-xl transition-all hover:bg-white"
                                     placeholder="e.g. Kyoto, Japan"
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 />
@@ -115,40 +115,54 @@ export default function Hero({ onSearch }: HeroProps) {
                         </div>
 
                         {/* Days Input */}
-                        <div className="md:col-span-3 flex flex-col items-start gap-2">
-                            <label className="text-white/80 text-sm font-semibold tracking-wide ml-1">DURATION</label>
-                            <select
-                                id="days-select"
-                                className="w-full bg-white text-gray-900 px-4 py-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-inner"
-                            >
-                                <option value="3">3 Days</option>
-                                <option value="5" selected>5 Days</option>
-                                <option value="7">7 Days</option>
-                                <option value="10">10 Days</option>
-                                <option value="14">14 Days</option>
-                            </select>
+                        <div className="md:col-span-3 flex flex-col gap-2">
+                            <label className="text-white/90 text-xs font-bold tracking-[0.2em] ml-1 uppercase">Duration</label>
+                            <div className="relative group">
+                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-primary w-6 h-6 z-10 pointer-events-none">
+                                    <Calendar className="w-full h-full" />
+                                </div>
+                                <select
+                                    id="days-select"
+                                    className="w-full bg-white/95 backdrop-blur-sm text-slate-900 pl-14 pr-10 py-5 rounded-2xl font-bold text-xl appearance-none cursor-pointer focus:outline-none focus:ring-4 focus:ring-primary/30 shadow-xl transition-all hover:bg-white"
+                                >
+                                    <option value="3">3 Days</option>
+                                    <option value="5" selected>5 Days</option>
+                                    <option value="7">7 Days</option>
+                                    <option value="10">10 Days</option>
+                                    <option value="14">14 Days</option>
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                    <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Budget Input */}
-                        <div className="md:col-span-4 flex flex-col items-start gap-2">
-                            <label className="text-white/80 text-sm font-semibold tracking-wide ml-1">BUDGET</label>
-                            <select
-                                id="budget-select"
-                                className="w-full bg-white text-gray-900 px-4 py-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-inner"
-                            >
-                                <option value="Cheap">Budget (Backpacker)</option>
-                                <option value="Moderate" selected>Moderate (Standard)</option>
-                                <option value="Luxury">Luxury (High End)</option>
-                            </select>
+                        <div className="md:col-span-4 flex flex-col gap-2">
+                            <label className="text-white/90 text-xs font-bold tracking-[0.2em] ml-1 uppercase">Budget & Vibe</label>
+                            <div className="relative group">
+                                <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 text-primary w-6 h-6 z-10 pointer-events-none" />
+                                <select
+                                    id="budget-select"
+                                    className="w-full bg-white/95 backdrop-blur-sm text-slate-900 pl-14 pr-10 py-5 rounded-2xl font-bold text-xl appearance-none cursor-pointer focus:outline-none focus:ring-4 focus:ring-primary/30 shadow-xl transition-all hover:bg-white"
+                                >
+                                    <option value="Cheap">Budget (Backpacker)</option>
+                                    <option value="Moderate" selected>Moderate (Standard)</option>
+                                    <option value="Luxury">Luxury (High End)</option>
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                    <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Search Button (Full Width on Mobile, dedicated slot on Desktop) */}
-                        <div className="md:col-span-12 mt-4">
+                        {/* Search Button */}
+                        <div className="md:col-span-12 mt-2">
                             <button
                                 onClick={() => handleSearch()}
-                                className="w-full bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-primary/50 flex items-center justify-center gap-2"
+                                className="w-full bg-gradient-to-r from-primary via-red-500 to-orange-500 hover:from-primary/90 hover:to-orange-500/90 text-white py-5 rounded-2xl font-black text-xl tracking-wide uppercase shadow-2xl hover:shadow-primary/50 hover:scale-[1.01] transition-all duration-300 flex items-center justify-center gap-3 group"
                             >
-                                <Search className="w-5 h-5" />
+                                <Search className="w-6 h-6 group-hover:rotate-12 transition-transform" />
                                 Plan My Ultimate Trip
                             </button>
                         </div>
