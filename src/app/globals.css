@@ -28,8 +28,22 @@
 
 @layer utilities {
 
-  /* Aurora Background Animation */
+  /* Aurora Animations */
   @keyframes aurora {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes liquid {
     0% {
       background-position: 0% 50%;
     }
@@ -49,35 +63,30 @@
     animation: aurora 15s ease infinite;
   }
 
-  .aurora-text {
-    background: linear-gradient(to right, #fb7185, #d8b4fe, #818cf8);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  .radial-depth {
+    background: radial-gradient(circle at top, #1e293b 0%, #020617 100%);
   }
 
-  /* Glassmorphism - Standard CSS to avoid Tailwind v4 @apply issues */
+  .liquid-gradient {
+    background: linear-gradient(270deg, #10b981, #06b6d4, #10b981);
+    /* Emerald to Cyan */
+    background-size: 200% 200%;
+    animation: liquid 3s ease infinite;
+  }
+
+  .emerald-glow {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+  }
+
   .glass-panel {
-    background-color: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl;
   }
 
   .glass-card {
-    background-color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    @apply bg-white/80 backdrop-blur-md border border-white/30 shadow-lg hover:shadow-2xl transition-all duration-300;
   }
 
   .glass-dark {
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     color: white;

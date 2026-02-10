@@ -20,33 +20,52 @@ export default function Layout({ children, demoMode, onToggleDemoMode }: LayoutP
     }, []);
 
     return (
-        <div className="min-h-screen bg-white">
+    return (
+        <div className="min-h-screen bg-[#020617] relative selection:bg-emerald-500/30 selection:text-emerald-200">
 
-            {/* Clean Navbar */}
+            {/* Ambient Background Depth */}
+            <div className="fixed inset-0 pointer-events-none radial-depth z-0" />
+
+            {/* Glass Capsule Navbar */}
             <nav
                 className={cn(
-                    'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-                    scrolled ? 'bg-white border-b border-gray-200 shadow-sm' : 'bg-white'
+                    'fixed top-6 left-0 right-0 z-50 transition-all duration-500 max-w-5xl mx-auto px-6',
+                    scrolled ? 'py-0' : 'py-2'
                 )}
             >
-                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 flex items-center justify-center bg-primary rounded-lg">
-                            <Plane className="w-5 h-5 text-white" />
+                <div
+                    className={cn(
+                        "flex items-center justify-between px-6 py-3 rounded-full transition-all duration-500 border border-white/5",
+                        scrolled ? "glass-capsule bg-black/40 shadow-2xl backdrop-blur-md" : "bg-transparent border-transparent"
+                    )}
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl shadow-lg shadow-emerald-500/20">
+                            <Plane className="w-5 h-5 text-white transform -rotate-45" />
                         </div>
-                        <span className="text-xl font-bold text-gray-900">VoyageAI</span>
+                        <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-emerald-200 to-cyan-200 tracking-tight">
+                            VoyageAI
+                        </span>
                     </div>
 
-                    <button
-                        onClick={onToggleDemoMode}
-                        className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-                    >
-                        {demoMode ? 'Live Mode' : 'Demo'}
-                    </button>
+                    <div className="flex items-center gap-6">
+                        <button className="hidden md:block text-sm font-medium text-white/70 hover:text-white transition-colors">
+                            Discover
+                        </button>
+                        <button className="hidden md:block text-sm font-medium text-white/70 hover:text-white transition-colors">
+                            Trips
+                        </button>
+                        <button
+                            onClick={onToggleDemoMode}
+                            className="text-xs font-bold uppercase tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors bg-emerald-500/10 px-4 py-2 rounded-full border border-emerald-500/20"
+                        >
+                            {demoMode ? 'Live Mode' : 'Demo 2.0'}
+                        </button>
+                    </div>
                 </div>
             </nav>
 
-            <main className="relative w-full pt-16">
+            <main className="relative w-full z-10">
                 {children}
             </main>
         </div>
