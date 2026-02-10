@@ -15,7 +15,7 @@ export default function BudgetTile({ totalCost }: { totalCost: number }) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="glass-card rounded-[2rem] p-6 border border-white/5 h-[280px] flex flex-col"
+            className="glass-card-elevated rounded-[2rem] p-6 border border-white/5 h-[280px] flex flex-col"
         >
             <h3 className="text-white font-bold text-lg mb-1">Budget Breakdown</h3>
             <p className="text-emerald-400 font-mono text-xl font-bold mb-4">Total: ${totalCost.toLocaleString()}</p>

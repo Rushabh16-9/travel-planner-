@@ -11,21 +11,21 @@ export default function TimelineTile({ itinerary }: { itinerary: any[] }) {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-card rounded-[2rem] p-8 h-full min-h-[500px] border border-white/5 relative overflow-hidden"
+            className="glass-card-elevated rounded-[2rem] p-6 sm:p-8 h-full min-h-[500px] border border-white/5 relative overflow-hidden"
         >
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-cyan-500" />
-            <h2 className="text-3xl font-serif font-bold text-white mb-8">The Journey</h2>
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-6 sm:mb-8">The Journey</h2>
 
             <div className="space-y-4">
                 {itinerary?.map((day: any, idx: number) => (
-                    <div key={idx} className="bg-white/5 rounded-2xl overflow-hidden border border-white/5 hover:border-white/10 transition-colors">
+                    <div key={idx} className="glass-card rounded-2xl overflow-hidden border border-white/5 transition-all">
                         <button
                             onClick={() => setExpandedDay(expandedDay === idx ? null : idx)}
-                            className="w-full flex items-center justify-between p-6 text-left"
+                            className="w-full flex items-center justify-between p-4 sm:p-6 text-left hover:bg-white/5 transition-all focus-ring-inset"
                         >
-                            <div className="flex items-center gap-4">
-                                <span className="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded-lg text-sm uppercase tracking-wider">Day {day.day}</span>
-                                <span className="text-white font-medium text-lg">Exploration</span>
+                            <div className="flex items-center gap-3 sm:gap-4">
+                                <span className="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded-lg text-xs sm:text-sm uppercase tracking-wider">Day {day.day}</span>
+                                <span className="text-white font-medium text-base sm:text-lg">Exploration</span>
                             </div>
                             <ChevronDown className={`w-5 h-5 text-white/50 transition-transform ${expandedDay === idx ? 'rotate-180' : ''}`} />
                         </button>

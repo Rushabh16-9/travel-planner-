@@ -16,7 +16,7 @@ export default function WeatherTile({ coordinates }: { coordinates: any }) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1 }}
-            className="glass-card rounded-[2rem] p-6 border border-white/5 h-[200px] flex flex-col justify-between"
+            className="glass-card-elevated rounded-[2rem] p-6 border border-white/5 h-[200px] flex flex-col justify-between"
         >
             <div className="flex justify-between items-start">
                 <div>

@@ -122,7 +122,7 @@ export default function Hero({ onSearch }: HeroProps) {
                 </motion.p>
 
                 {/* Command Center (Glass Input Grid) */}
-                <motion.div variants={itemVariants} className="glass-panel p-2 rounded-[2rem] max-w-5xl mx-auto mb-24 relative overflow-visible shadow-glow-soft">
+                <motion.div variants={itemVariants} className="glass-dark-premium p-2 rounded-[2rem] max-w-5xl mx-auto mb-24 relative overflow-visible glow-emerald-soft">
                     {/* Glow effect behind the panel */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-[2.2rem] blur-xl -z-10" />
 
@@ -132,11 +132,11 @@ export default function Hero({ onSearch }: HeroProps) {
                         <div className="md:col-span-5 flex flex-col gap-2 text-left">
                             <label className="text-emerald-400/90 text-xs font-bold tracking-[0.2em] ml-2 uppercase">Destination</label>
                             <div className="relative group">
-                                <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5 transition-transform group-hover:scale-110" />
+                                <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5 transition-transform group-hover:scale-110 group-focus-within:scale-110" />
                                 <input
                                     ref={inputRef}
                                     type="text"
-                                    className="w-full bg-white/5 backdrop-blur-md text-white pl-12 pr-4 py-4 rounded-2xl font-medium text-lg placeholder:text-white/30 focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50 transition-all border border-white/10 hover:border-white/20 emerald-glow"
+                                    className="w-full bg-white/5 backdrop-blur-md text-white pl-12 pr-4 py-4 rounded-2xl font-medium text-lg placeholder:text-white/30 focus-ring transition-all border border-white/10 hover:border-white/20 hover:bg-white/10"
                                     placeholder="Where to next?"
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 />
@@ -151,7 +151,7 @@ export default function Hero({ onSearch }: HeroProps) {
                                 <select
                                     id="days-select"
                                     defaultValue="5"
-                                    className="w-full bg-white/5 text-white pl-12 pr-8 py-4 rounded-2xl font-medium text-lg appearance-none cursor-pointer focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-cyan-500/50 transition-all border border-white/5 hover:border-white/20"
+                                    className="w-full bg-white/5 text-white pl-12 pr-8 py-4 rounded-2xl font-medium text-lg appearance-none cursor-pointer focus-ring transition-all border border-white/5 hover:border-white/20 hover:bg-white/10"
                                 >
                                     <option value="3" className="bg-slate-900 text-white">3 Days</option>
                                     <option value="5" className="bg-slate-900 text-white">5 Days</option>
@@ -173,7 +173,7 @@ export default function Hero({ onSearch }: HeroProps) {
                                 <select
                                     id="currency-select"
                                     defaultValue="USD"
-                                    className="w-[35%] bg-white/5 text-white pl-12 pr-2 py-4 rounded-l-2xl font-medium text-lg appearance-none cursor-pointer focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50 transition-all border border-white/5 hover:border-white/20 border-r-0"
+                                    className="w-[35%] bg-white/5 text-white pl-12 pr-2 py-4 rounded-l-2xl font-medium text-lg appearance-none cursor-pointer focus-ring-inset transition-all border border-white/5 hover:border-white/20 hover:bg-white/10 border-r-0"
                                 >
                                     <option value="USD" className="bg-slate-900 text-white">USD ($)</option>
                                     <option value="INR" className="bg-slate-900 text-white">INR (₹)</option>
@@ -187,7 +187,7 @@ export default function Hero({ onSearch }: HeroProps) {
                                     id="budget-amount"
                                     type="number"
                                     placeholder="2000"
-                                    className="w-[65%] bg-white/5 text-white pl-4 pr-4 py-4 rounded-r-2xl font-medium text-lg placeholder:text-white/30 focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50 transition-all border border-white/5 hover:border-white/20 border-l-white/10"
+                                    className="w-[65%] bg-white/5 text-white pl-4 pr-4 py-4 rounded-r-2xl font-medium text-lg placeholder:text-white/30 focus-ring-inset transition-all border border-white/5 hover:border-white/20 hover:bg-white/10 border-l-white/10"
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 />
                             </div>
@@ -201,7 +201,7 @@ export default function Hero({ onSearch }: HeroProps) {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleSearch()}
-                            className="w-full liquid-gradient text-white py-5 rounded-2xl font-bold text-xl uppercase tracking-widest shadow-2xl emerald-glow border border-white/20 flex items-center justify-center gap-3 group"
+                            className="w-full liquid-gradient text-white py-5 rounded-2xl font-bold text-xl uppercase tracking-widest shadow-2xl glow-emerald-strong border border-white/20 flex items-center justify-center gap-3 group transition-shadow hover:shadow-[0_0_60px_rgba(16,185,129,0.4)]"
                         >
                             <Search className="w-6 h-6 group-hover:rotate-12 transition-transform" />
                             Plan Itinerary
@@ -212,33 +212,36 @@ export default function Hero({ onSearch }: HeroProps) {
                 {/* Bento Grid 2.0: Destinations (Masonry) */}
                 <motion.div variants={itemVariants} className="pt-8">
                     <p className="text-white/50 text-xs tracking-[0.3em] uppercase mb-8 font-semibold">Trending This Week</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto h-[400px]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto h-auto md:h-[400px]">
                         {FEATURED_CITIES.map((city, idx) => (
                             <motion.button
                                 key={city.name}
                                 onClick={() => handleSearch(city.query)}
-                                className={`relative rounded-3xl overflow-hidden cursor-pointer group border border-white/10 shadow-lg ${city.size === 'large' ? 'col-span-2 row-span-2' : 'col-span-1 row-span-1'
+                                className={`relative rounded-3xl overflow-hidden cursor-pointer group border border-white/10 shadow-lg transition-all hover:shadow-2xl ${city.size === 'large' ? 'sm:col-span-2 sm:row-span-2 h-[300px] sm:h-auto' : 'h-[200px] sm:h-auto'
                                     }`}
-                                whileHover={{ scale: 1.02 }}
+                                whileHover={{ scale: 1.02, y: -4 }}
                                 whileTap={{ scale: 0.98 }}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: idx * 0.1 }}
                             >
                                 <Image
                                     src={city.image}
                                     alt={city.name}
                                     fill
                                     className="object-cover group-hover:scale-110 transition-transform duration-700"
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
 
                                 {city.size === 'large' && (
-                                    <div className="absolute top-4 left-4 bg-emerald-500/90 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg z-10">
+                                    <div className="absolute top-4 left-4 bg-emerald-500/90 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg z-10 group-hover:bg-emerald-400 transition-colors">
                                         Featured
                                     </div>
                                 )}
 
-                                <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col items-start transform translate-y-2 group-hover:translate-y-0 transition-transform z-20">
-                                    <h3 className={`font-serif text-white leading-none mb-1 ${city.size === 'large' ? 'text-4xl' : 'text-xl'}`}>
+                                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 flex flex-col items-start transform translate-y-2 group-hover:translate-y-0 transition-transform z-20">
+                                    <h3 className={`font-serif text-white leading-none mb-1 ${city.size === 'large' ? 'text-3xl sm:text-4xl' : 'text-xl'}`}>
                                         {city.name}
                                     </h3>
                                     <span className="text-white/60 text-xs uppercase tracking-wider opacity-0 group-hover:opacity-100 group-hover:text-emerald-300 transition-all delay-100">
