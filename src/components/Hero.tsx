@@ -113,7 +113,7 @@ export default function Hero({ onSearch }: HeroProps) {
             >
 
                 {/* Heading */}
-                <motion.h1 variants={itemVariants} className="text-6xl md:text-8xl font-serif font-bold text-white mb-6 drop-shadow-2xl tracking-tight">
+                <motion.h1 variants={itemVariants} className="text-6xl md:text-8xl font-serif font-bold text-white mb-6 drop-shadow-2xl tracking-tighter">
                     Wanderlust, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 italic">Reimagined.</span>
                 </motion.h1>
 
@@ -122,7 +122,7 @@ export default function Hero({ onSearch }: HeroProps) {
                 </motion.p>
 
                 {/* Command Center (Glass Input Grid) */}
-                <motion.div variants={itemVariants} className="glass-panel p-2 rounded-[2rem] max-w-5xl mx-auto mb-20 relative overflow-visible">
+                <motion.div variants={itemVariants} className="glass-panel p-2 rounded-[2rem] max-w-5xl mx-auto mb-24 relative overflow-visible shadow-glow-soft">
                     {/* Glow effect behind the panel */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-[2.2rem] blur-xl -z-10" />
 
@@ -136,7 +136,7 @@ export default function Hero({ onSearch }: HeroProps) {
                                 <input
                                     ref={inputRef}
                                     type="text"
-                                    className="w-full bg-white/5 text-white pl-12 pr-4 py-4 rounded-2xl font-medium text-lg placeholder:text-white/30 focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50 transition-all border border-white/5 hover:border-white/20 emerald-glow"
+                                    className="w-full bg-white/5 backdrop-blur-md text-white pl-12 pr-4 py-4 rounded-2xl font-medium text-lg placeholder:text-white/30 focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-emerald-500/50 transition-all border border-white/10 hover:border-white/20 emerald-glow"
                                     placeholder="Where to next?"
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 />
@@ -231,11 +231,17 @@ export default function Hero({ onSearch }: HeroProps) {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
 
-                                <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col items-start transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                                {city.size === 'large' && (
+                                    <div className="absolute top-4 left-4 bg-emerald-500/90 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg z-10">
+                                        Featured
+                                    </div>
+                                )}
+
+                                <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col items-start transform translate-y-2 group-hover:translate-y-0 transition-transform z-20">
                                     <h3 className={`font-serif text-white leading-none mb-1 ${city.size === 'large' ? 'text-4xl' : 'text-xl'}`}>
                                         {city.name}
                                     </h3>
-                                    <span className="text-white/60 text-xs uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity delay-100">
+                                    <span className="text-white/60 text-xs uppercase tracking-wider opacity-0 group-hover:opacity-100 group-hover:text-emerald-300 transition-all delay-100">
                                         {city.country}
                                     </span>
                                 </div>

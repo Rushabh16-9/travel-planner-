@@ -78,6 +78,10 @@
     box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
   }
 
+  .shadow-glow-soft {
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.1);
+  }
+
   .glass-panel {
     background-color: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(24px);
