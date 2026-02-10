@@ -93,6 +93,39 @@ Keep it short.`;
         console.error('❌ Gemini Error:', e);
     }
 
+    // 5. Test Local API Endpoint
+    console.log('\n🏠 Testing Local API Endpoint (http://localhost:3005/api/trip)...');
+    const localStart = Date.now();
+    try {
+        const localRes = await fetch('http://localhost:3005/api/trip', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                destination: 'Paris',
+                days: 3,
+                budget: 'EUR 1500'
+            })
+        });
+
+        if (!localRes.ok) {
+            const errText = await localRes.text();
+            throw new Error(`Status ${localRes.status}: ${errText}`);
+        }
+
+        const localData = await localRes.json();
+        console.log(`✅ Local API Success in ${Date.now() - localStart}ms`);
+        console.log('Trip Data Preview:', JSON.stringify(localData).substring(0, 200) + '...');
+
+        if (localData.totalCost && localData.currency === 'EUR') {
+            console.log('✅ Budget/Currency correctly processed');
+        } else {
+            console.warn('⚠️ Budget/Currency check failed:', localData.totalCost, localData.currency);
+        }
+
+    } catch (e) {
+        console.error('❌ Local API Error:', e);
+    }
+
     console.log('\n🏁 Diagnosis Complete');
 }
 

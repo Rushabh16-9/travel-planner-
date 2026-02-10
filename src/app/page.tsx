@@ -12,14 +12,15 @@ export default function Home() {
   const [tripData, setTripData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = async (query: string, days: number) => {
+  const handleSearch = async (destination: string, days: number, budget?: string) => {
     setIsLoading(true);
     setError(null);
     try {
+      // Use destination as the query for geocoding purposes
       const response = await fetch('/api/trip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, days }),
+        body: JSON.stringify({ destination, days, budget }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);

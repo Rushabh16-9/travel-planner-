@@ -9,14 +9,15 @@ const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_KEY || '');
 
 export async function POST(req: Request) {
   try {
-    const { query, days = 3 } = await req.json();
-    console.log("🚀 API Received Query:", query, "Days:", days);
+    const { destination, days = 3, budget } = await req.json();
+    console.log("🚀 API Received:", destination, "Days:", days, "Budget:", budget);
+
+    const query = destination;
 
     if (!query) {
       return NextResponse.json({ error: "Destination required" }, { status: 400 });
     }
 
-    // 1. Parallel Data Fetching
     // 1. Parallel Data Fetching
     let geoData = await getCoordinates(query);
     let weatherData = null;
@@ -24,16 +25,14 @@ export async function POST(req: Request) {
     let destinationImage = null;
 
     if (!geoData) {
-      console.warn("⚠️ Geoapify failed or returned no results. Proceeding without location data.");
-      // Fallback: Proceed with just the query, skip location-dependent services
+      console.warn("⚠️ Geoapify failed. Proceeding without location data.");
       destinationImage = await getDestinationImage(query);
     } else {
-      console.log("✅ Geoapify Success:", geoData);
       try {
         [weatherData, destinationImage, amadeusData] = await Promise.all([
-          getWeather(geoData.lat, geoData.lon).catch(e => { console.error("Weather Failed:", e); return null; }),
-          getDestinationImage(query).catch(e => { console.error("Image Failed:", e); return null; }),
-          getAmadeusData(geoData.lat, geoData.lon).catch(e => { console.error("Amadeus Failed:", e); return []; })
+          getWeather(geoData.lat, geoData.lon).catch(e => null),
+          getDestinationImage(query).catch(e => null),
+          getAmadeusData(geoData.lat, geoData.lon).catch(e => [])
         ]);
       } catch (e) {
         console.error("Context Fetching Partial Failure:", e);
@@ -41,7 +40,12 @@ export async function POST(req: Request) {
     }
 
     // 2. Prepare Context
-    let context = `Destination: ${geoData?.formatted || query}\n\n`;
+    // Extract currency from budget string (e.g. "USD 2000") -> "USD"
+    const currencyCode = budget?.split(' ')[0] || 'USD';
+    const budgetAmount = parseInt(budget?.replace(/\D/g, '') || '2000');
+
+    let context = `Destination: ${geoData?.formatted || query}\n`;
+    if (budget) context += `Budget Constraint: ${budget}\n`;
 
     if (weatherData) {
       const temp = weatherData.current.temperature;
@@ -50,33 +54,25 @@ export async function POST(req: Request) {
     }
 
     if (amadeusData && amadeusData.length > 0) {
-      context += `Real Local Attractions (incorporate these): ${amadeusData.map((poi: any) => poi.name).join(', ')}\n`;
+      context += `Real Local Attractions: ${amadeusData.map((poi: any) => poi.name).join(', ')}\n`;
     }
 
-    // 3. Generate Itinerary (Ollama / Kimi / Gemini)
+    // 3. Generate Itinerary
     let tripData;
-    const ollamaModel = process.env.OLLAMA_MODEL; // e.g., "kimi-k2.5"
+    const ollamaModel = process.env.OLLAMA_MODEL;
     const kimiKey = process.env.KIMI_API_KEY;
 
-    // --- Priority 1: Ollama (Local / Cloud Native) ---
-    if (ollamaModel) {
-      try {
-        const baseUrl = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
-        console.log(`🔌 Connecting to Ollama: ${baseUrl} Model: ${ollamaModel}`);
-
-        const requestBody = {
-          model: ollamaModel,
-          messages: [
-            { role: "system", content: "You are a travel assistant. Return ONLY valid JSON." },
-            {
-              role: "user", content: `Create a ${days}-day trip itinerary for "${query}".
+    // Prompt Template
+    const systemPrompt = "You are a travel assistant. Return ONLY valid JSON. No markdown.";
+    const userPrompt = `Create a ${days}-day trip itinerary for "${query}".
 Context: ${context}
 
 Output format:
 {
   "destination": "${geoData?.formatted || query}",
   "duration": ${days},
-  "totalCost": 2000,
+  "totalCost": ${budgetAmount},
+  "currency": "${currencyCode}",
   "itinerary": [
     {
       "day": 1,
@@ -94,10 +90,21 @@ Output format:
     }
   ]
 }
-Include ${days} days.`
-            }
+Include ${days} days with 4-5 activities per day. Keep descriptions concise.`;
+
+    // --- Priority 1: Ollama (Local / Cloud Native) ---
+    if (ollamaModel) {
+      try {
+        const baseUrl = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
+        console.log(`🔌 Connecting to Ollama: ${baseUrl} Model: ${ollamaModel}`);
+
+        const requestBody = {
+          model: ollamaModel,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
           ],
-          stream: true, // Enable streaming for "Thinking" effect
+          stream: true,
           options: { temperature: 0.3 }
         };
 
@@ -110,7 +117,7 @@ Include ${days} days.`
         });
 
         if (response.status === 401) {
-          throw new Error("Ollama 401 Unauthorized: Check your public key (id_ed25519.pub) on ollama.com");
+          throw new Error("Ollama 401 Unauthorized");
         }
 
         if (!response.ok) throw new Error(`Ollama Error: ${response.statusText}`);
@@ -138,121 +145,65 @@ Include ${days} days.`
         }
 
         if (!fullContent) throw new Error("Ollama - No content received");
-
         console.log("Ollama Raw Output:", fullContent);
 
         try {
           const jsonString = fullContent.replace(/```json|```/g, '').trim();
           tripData = JSON.parse(jsonString);
         } catch (e) {
-          console.error("JSON Parse Failed. Raw:", fullContent);
+          console.error("JSON Parse Failed");
           throw new Error("Ollama returned invalid JSON");
         }
 
       } catch (ollamaError: any) {
         console.error("Ollama Failed:", ollamaError.message);
-        // Fallthrough if not 401?
-        if (ollamaError.message.includes("401")) {
-          // For now just log, execution continues to Priority 2
-        }
       }
     }
 
-
-
     if (!tripData && kimiKey) {
       // --- Priority 2: Kimi (Moonshot Cloud) ---
-      const response = await fetch("https://api.moonshot.cn/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${kimiKey}`
-        },
-        body: JSON.stringify({
-          model: "moonshot-v1-8k",
-          messages: [
-            {
-              role: "system",
-              content: "You are a travel assistant. Return ONLY valid JSON. No markdown."
-            },
-            {
-              role: "user",
-              content: `Create a ${days}-day trip itinerary for "${query}".
-Context: ${context}
+      try {
+        const response = await fetch("https://api.moonshot.cn/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${kimiKey}`
+          },
+          body: JSON.stringify({
+            model: "moonshot-v1-8k",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt }
+            ],
+            temperature: 0.3
+          })
+        });
 
-Output format:
-{
-  "destination": "${geoData?.formatted || query}",
-  "duration": ${days},
-  "totalCost": 2000,
-  "itinerary": [
-    {
-      "day": 1,
-      "date": "Day 1",
-      "activities": [
-        {
-          "time": "09:00 AM",
-          "title": "Activity Name",
-          "description": "Brief description",
-          "type": "Adventure",
-          "price": 50,
-          "importance": "High"
-        }
-      ]
-    }
-  ]
-}
-Include ${days} days.`
-            }
-          ],
-          temperature: 0.3
-        })
-      });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error?.message || "Kimi API Error");
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error?.message || "Kimi API Error");
-
-      const content = data.choices[0].message.content;
-      const jsonString = content.replace(/```json|```/g, '').trim();
-      tripData = JSON.parse(jsonString);
-
+        const content = data.choices[0].message.content;
+        const jsonString = content.replace(/```json|```/g, '').trim();
+        tripData = JSON.parse(jsonString);
+      } catch (e) {
+        console.error("Kimi Failed:", e);
+      }
     }
 
     if (!tripData) {
       // --- Priority 3: Gemini (Fallback) ---
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const prompt = `Create a ${days}-day trip itinerary for "${query}".
-
-Context: ${context}
-
-Return ONLY valid JSON (no markdown, no text):
-{
-  "destination": "${geoData?.formatted || query}",
-  "duration": ${days},
-  "totalCost": 2000,
-  "itinerary": [
-    {
-      "day": 1,
-      "date": "Day 1",
-      "activities": [
-        {
-          "time": "09:00 AM",
-          "title": "Activity Name",
-          "description": "Brief description",
-          "type": "Adventure",
-          "price": 50,
-          "importance": "High"
-        }
-      ]
+      try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const result = await model.generateContent(userPrompt);
+        const jsonString = result.response.text().replace(/```json|```/g, '').trim();
+        tripData = JSON.parse(jsonString);
+      } catch (e) {
+        console.error("Gemini Failed:", e);
+      }
     }
-  ]
-}
 
-Include ${days} days with 4-5 activities per day. Keep descriptions concise.`;
-
-      const result = await model.generateContent(prompt);
-      const jsonString = result.response.text().replace(/```json|```/g, '').trim();
-      tripData = JSON.parse(jsonString);
+    if (!tripData) {
+      throw new Error("All AI models failed to generate itinerary.");
     }
 
     // Inject real image
