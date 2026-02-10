@@ -115,6 +115,7 @@ export default function Hero({ onSearch }: HeroProps) {
                         </div>
 
                         {/* Days Input */}
+                        {/* Days Input */}
                         <div className="md:col-span-3 flex flex-col gap-2">
                             <label className="text-white/90 text-xs font-bold tracking-[0.2em] ml-1 uppercase">Duration</label>
                             <div className="relative group">
@@ -123,10 +124,11 @@ export default function Hero({ onSearch }: HeroProps) {
                                 </div>
                                 <select
                                     id="days-select"
+                                    defaultValue="5"
                                     className="w-full bg-white/95 backdrop-blur-sm text-slate-900 pl-14 pr-10 py-5 rounded-2xl font-bold text-xl appearance-none cursor-pointer focus:outline-none focus:ring-4 focus:ring-primary/30 shadow-xl transition-all hover:bg-white"
                                 >
                                     <option value="3">3 Days</option>
-                                    <option value="5" selected>5 Days</option>
+                                    <option value="5">5 Days</option>
                                     <option value="7">7 Days</option>
                                     <option value="10">10 Days</option>
                                     <option value="14">14 Days</option>
@@ -144,10 +146,11 @@ export default function Hero({ onSearch }: HeroProps) {
                                 <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 text-primary w-6 h-6 z-10 pointer-events-none" />
                                 <select
                                     id="budget-select"
+                                    defaultValue="Moderate"
                                     className="w-full bg-white/95 backdrop-blur-sm text-slate-900 pl-14 pr-10 py-5 rounded-2xl font-bold text-xl appearance-none cursor-pointer focus:outline-none focus:ring-4 focus:ring-primary/30 shadow-xl transition-all hover:bg-white"
                                 >
                                     <option value="Cheap">Budget (Backpacker)</option>
-                                    <option value="Moderate" selected>Moderate (Standard)</option>
+                                    <option value="Moderate">Moderate (Standard)</option>
                                     <option value="Luxury">Luxury (High End)</option>
                                 </select>
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
