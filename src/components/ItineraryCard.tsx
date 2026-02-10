@@ -56,6 +56,4 @@ export default function ItineraryCard({ activity, index }: ItineraryCardProps) {
         </motion.div>
     );
 }
-        </motion.div >
-    );
-}
+
