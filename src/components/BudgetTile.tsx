@@ -15,7 +15,7 @@ export default function BudgetTile({ totalCost }: { totalCost: number }) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="glass-card-elevated rounded-[2rem] p-6 border border-white/5 h-[280px] flex flex-col"
+            className="glass-card-elevated rounded-[2rem] p-6 border border-white/5 h-[280px] flex flex-col group"
         >
             <h3 className="text-white font-bold text-lg mb-1">Budget Breakdown</h3>
             <p className="text-emerald-400 font-mono text-xl font-bold mb-4">Total: ${totalCost.toLocaleString()}</p>
@@ -30,14 +30,28 @@ export default function BudgetTile({ totalCost }: { totalCost: number }) {
                             paddingAngle={5}
                             dataKey="value"
                             stroke="none"
+                            animationDuration={1500}
+                            animationBegin={200}
                         >
                             {data.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                <Cell
+                                    key={`cell-${index}`}
+                                    fill={entry.color}
+                                    className="hover:opacity-80 transition-opacity cursor-pointer"
+                                />
                             ))}
                         </Pie>
                         <Tooltip
-                            contentStyle={{ backgroundColor: '#020617', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
-                            itemStyle={{ color: '#fff' }}
+                            contentStyle={{
+                                backgroundColor: 'rgba(2, 6, 23, 0.9)',
+                                backdropFilter: 'blur(8px)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '12px',
+                                color: '#fff',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                            }}
+                            itemStyle={{ color: '#fff', fontWeight: 500 }}
+                            formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Cost']}
                         />
                     </PieChart>
                 </ResponsiveContainer>

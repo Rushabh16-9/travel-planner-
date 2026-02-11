@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef } from 'react';
-import { Search, MapPin, Calendar, DollarSign } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Search, MapPin, Calendar, DollarSign, Euro, PoundSterling, JapaneseYen, IndianRupee, CalendarDays } from 'lucide-react';
 import { motion, Variants } from 'framer-motion';
 import Image from 'next/image';
 
@@ -14,28 +14,28 @@ const FEATURED_CITIES = [
         name: 'Paris',
         country: 'France',
         query: 'Paris, France, 3 Days',
-        image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=600&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1200&auto=format&fit=crop',
         size: 'large',
     },
     {
         name: 'Tokyo',
         country: 'Japan',
         query: 'Tokyo, Japan, 5 Days',
-        image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=600&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1200&auto=format&fit=crop',
         size: 'small',
     },
     {
         name: 'New York',
         country: 'USA',
         query: 'New York City, USA, 4 Days',
-        image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=600&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1200&auto=format&fit=crop',
         size: 'small',
     },
     {
         name: 'Santorini',
         country: 'Greece',
         query: 'Santorini, Greece, 5 Days',
-        image: 'https://images.unsplash.com/photo-1613395877344-13d4c79e4284?q=80&w=600&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1200&auto=format&fit=crop',
         size: 'small',
     },
 ];
@@ -63,13 +63,28 @@ const itemVariants: Variants = {
 
 export default function Hero({ onSearch }: HeroProps) {
     const inputRef = useRef<HTMLInputElement>(null);
+    const [currency, setCurrency] = useState('USD');
+
+    const currencyIcon = {
+        USD: DollarSign,
+        EUR: Euro,
+        GBP: PoundSterling,
+        JPY: JapaneseYen,
+        INR: IndianRupee,
+    }[currency] || DollarSign;
 
     const handleSearch = (query?: string) => {
-        // Default to 3 days if not specified or found
-        let days = 3;
-        const daysSelect = document.getElementById('days-select') as HTMLSelectElement;
-        if (daysSelect && daysSelect.value) {
-            days = parseInt(daysSelect.value);
+        // Calculate days from date pickers
+        let days = 5; // Default
+        const dateFrom = document.getElementById('date-from') as HTMLInputElement;
+        const dateTo = document.getElementById('date-to') as HTMLInputElement;
+        
+        if (dateFrom?.value && dateTo?.value) {
+            const from = new Date(dateFrom.value);
+            const to = new Date(dateTo.value);
+            const diffTime = Math.abs(to.getTime() - from.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            days = diffDays > 0 ? diffDays : 5;
         }
 
         if (query) {
@@ -99,6 +114,7 @@ export default function Hero({ onSearch }: HeroProps) {
                     alt="Hero Background"
                     fill
                     className="object-cover opacity-80"
+                    unoptimized
                     priority
                     sizes="100vw"
                 />
@@ -112,112 +128,171 @@ export default function Hero({ onSearch }: HeroProps) {
                 animate="show"
             >
 
-                {/* Heading */}
-                <motion.h1 variants={itemVariants} className="text-6xl md:text-8xl font-serif font-bold text-white mb-6 drop-shadow-2xl tracking-tighter">
-                    Wanderlust, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 italic">Reimagined.</span>
+                {/* Floating 3D Icons */}
+                <motion.div
+                    animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute top-20 left-[10%] opacity-20 hidden md:block"
+                >
+                    <Search className="w-24 h-24 text-emerald-400" />
+                </motion.div>
+                <motion.div
+                    animate={{ y: [0, 30, 0], rotate: [0, -10, 0] }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute top-40 right-[15%] opacity-20 hidden md:block"
+                >
+                    <MapPin className="w-32 h-32 text-cyan-400" />
+                </motion.div>
+
+                {/* Heading with Split Text Animation */}
+                <motion.h1
+                    className="text-6xl md:text-8xl font-serif font-bold text-white/95 mb-6 drop-shadow-2xl tracking-tight text-center mx-auto"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="show"
+                >
+                    {Array.from("Wanderlust").map((char, index) => (
+                        <motion.span
+                            key={index}
+                            variants={{
+                                hidden: { opacity: 0, y: 50, rotateX: -90 },
+                                show: { opacity: 1, y: 0, rotateX: 0 }
+                            }}
+                            className="inline-block origin-bottom"
+                        >
+                            {char}
+                        </motion.span>
+                    ))}
+                    <span className="inline-block">,</span>{' '}
+                    <motion.span
+                        className="text-white italic inline-block"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8, duration: 0.6, ease: 'easeOut' }}
+                    >
+                        Reimagined.
+                    </motion.span>
                 </motion.h1>
 
-                <motion.p variants={itemVariants} className="text-xl md:text-2xl text-white/80 mb-12 font-light tracking-wide max-w-2xl mx-auto leading-relaxed">
+                <motion.p variants={itemVariants} className="text-lg md:text-2xl text-white/80 mb-14 font-light tracking-wide max-w-3xl mx-auto leading-relaxed text-center">
                     AI-powered itineraries crafted for the modern explorer.
                 </motion.p>
 
                 {/* Command Center (Glass Input Grid) */}
-                <motion.div variants={itemVariants} className="glass-dark-premium p-2 rounded-[2rem] max-w-5xl mx-auto mb-24 relative overflow-visible glow-emerald-soft">
+                <motion.div variants={itemVariants} className="glass-dark-premium p-2 rounded-[2rem] max-w-6xl mx-auto mb-20 md:mb-24 relative overflow-visible glow-emerald-soft">
                     {/* Glow effect behind the panel */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-[2.2rem] blur-xl -z-10" />
 
-                    <div className="bg-black/40 backdrop-blur-xl rounded-[1.8rem] p-6 border border-white/10 grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                    <div className="bg-black/40 backdrop-blur-xl rounded-[1.8rem] p-8 sm:p-12 flex flex-col md:flex-row md:items-end gap-8 md:gap-0">
 
                         {/* Destination */}
-                        <div className="md:col-span-5 flex flex-col gap-2 text-left">
-                            <label className="text-emerald-400/90 text-xs font-bold tracking-[0.2em] ml-2 uppercase">Destination</label>
-                            <div className="relative group">
-                                <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5 transition-transform group-hover:scale-110 group-focus-within:scale-110" />
+                        <div className="flex-1 flex flex-col gap-4 text-left hover-lift md:pr-8 md:border-r md:border-white/10">
+                            <label className="inline-flex items-center gap-2 text-white/90 text-[12px] font-semibold tracking-[0.2em] uppercase px-6 py-3 rounded-full bg-white/15 w-fit self-start">
+                                Destination
+                            </label>
+                            <div className="field-shell group">
+                                <MapPin className="field-icon w-5 h-5 transition-transform group-hover:scale-110 group-focus-within:scale-110" />
                                 <input
                                     ref={inputRef}
                                     type="text"
-                                    className="w-full bg-white/5 backdrop-blur-md text-white pl-12 pr-4 py-4 rounded-2xl font-medium text-lg placeholder:text-white/30 focus-ring transition-all border border-white/10 hover:border-white/20 hover:bg-white/10"
+                                    className="field-input"
                                     placeholder="Where to next?"
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 />
                             </div>
                         </div>
 
-                        {/* Duration */}
-                        <div className="md:col-span-3 flex flex-col gap-2 text-left">
-                            <label className="text-cyan-400/90 text-xs font-bold tracking-[0.2em] ml-2 uppercase">Duration</label>
-                            <div className="relative group">
-                                <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-cyan-400 w-5 h-5 pointer-events-none" />
-                                <select
-                                    id="days-select"
-                                    defaultValue="5"
-                                    className="w-full bg-white/5 text-white pl-12 pr-8 py-4 rounded-2xl font-medium text-lg appearance-none cursor-pointer focus-ring transition-all border border-white/5 hover:border-white/20 hover:bg-white/10"
-                                >
-                                    <option value="3" className="bg-slate-900 text-white">3 Days</option>
-                                    <option value="5" className="bg-slate-900 text-white">5 Days</option>
-                                    <option value="7" className="bg-slate-900 text-white">7 Days</option>
-                                    <option value="10" className="bg-slate-900 text-white">10 Days</option>
-                                    <option value="14" className="bg-slate-900 text-white">14 Days</option>
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/30">▼</div>
+                        {/* Travel Dates */}
+                        <div className="flex-1 flex flex-col gap-4 text-left hover-lift md:px-8 md:border-r md:border-white/10">
+                            <label className="inline-flex items-center gap-2 text-white/90 text-[12px] font-semibold tracking-[0.2em] uppercase px-6 py-3 rounded-full bg-white/15 w-fit self-start">
+                                Travel Dates
+                            </label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="field-shell field-shell-sm group">
+                                    <Calendar className="field-icon w-4 h-4 pointer-events-none text-cyan-300" />
+                                    <input
+                                        id="date-from"
+                                        type="date"
+                                        className="field-input text-sm"
+                                        placeholder="From"
+                                    />
+                                </div>
+                                <div className="field-shell field-shell-sm group">
+                                    <CalendarDays className="field-icon w-4 h-4 pointer-events-none text-cyan-300" />
+                                    <input
+                                        id="date-to"
+                                        type="date"
+                                        className="field-input text-sm"
+                                        placeholder="To"
+                                    />
+                                </div>
                             </div>
                         </div>
 
                         {/* Budget */}
-                        <div className="md:col-span-4 flex flex-col gap-2 text-left">
-                            <label className="text-emerald-400/90 text-xs font-bold tracking-[0.2em] ml-2 uppercase">Budget</label>
-                            <div className="relative group flex items-center">
-                                <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5 pointer-events-none z-10" />
+                        <div className="flex-1 flex flex-col gap-4 text-left hover-lift md:pl-8">
+                            <label className="inline-flex items-center gap-2 text-white/90 text-[12px] font-semibold tracking-[0.2em] uppercase px-6 py-3 rounded-full bg-white/15 w-fit self-start">
+                                Budget
+                            </label>
+                            <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-3">
+                                <div className="field-shell field-shell-sm">
+                                    <select
+                                        id="currency-select"
+                                        defaultValue="USD"
+                                        className="field-select field-input-noicon"
+                                        onChange={(e) => setCurrency(e.target.value)}
+                                    >
+                                        <option value="USD" className="bg-slate-900 text-white">USD</option>
+                                        <option value="INR" className="bg-slate-900 text-white">INR</option>
+                                        <option value="EUR" className="bg-slate-900 text-white">EUR</option>
+                                        <option value="GBP" className="bg-slate-900 text-white">GBP</option>
+                                        <option value="JPY" className="bg-slate-900 text-white">JPY</option>
+                                    </select>
+                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-white/40 text-sm">▼</div>
+                                </div>
 
-                                {/* Currency Select */}
-                                <select
-                                    id="currency-select"
-                                    defaultValue="USD"
-                                    className="w-[35%] bg-white/5 text-white pl-12 pr-2 py-4 rounded-l-2xl font-medium text-lg appearance-none cursor-pointer focus-ring-inset transition-all border border-white/5 hover:border-white/20 hover:bg-white/10 border-r-0"
-                                >
-                                    <option value="USD" className="bg-slate-900 text-white">USD ($)</option>
-                                    <option value="INR" className="bg-slate-900 text-white">INR (₹)</option>
-                                    <option value="EUR" className="bg-slate-900 text-white">EUR (€)</option>
-                                    <option value="GBP" className="bg-slate-900 text-white">GBP (£)</option>
-                                    <option value="JPY" className="bg-slate-900 text-white">JPY (¥)</option>
-                                </select>
-
-                                {/* Budget Amount Input */}
-                                <input
-                                    id="budget-amount"
-                                    type="number"
-                                    placeholder="2000"
-                                    className="w-[65%] bg-white/5 text-white pl-4 pr-4 py-4 rounded-r-2xl font-medium text-lg placeholder:text-white/30 focus-ring-inset transition-all border border-white/5 hover:border-white/20 hover:bg-white/10 border-l-white/10"
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                />
+                                <div className="field-shell field-shell-sm group">
+                                    {(() => {
+                                        const Icon = currencyIcon;
+                                        return <Icon className="field-icon w-5 h-5" />;
+                                    })()}
+                                    <input
+                                        id="budget-amount"
+                                        type="number"
+                                        placeholder="2000"
+                                        className="field-input"
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                </div>
                             </div>
                         </div>
 
                     </div>
 
-                    {/* Liquid Search Button (Overlapping) */}
-                    <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 w-full max-w-sm px-4">
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleSearch()}
-                            className="w-full liquid-gradient text-white py-5 rounded-2xl font-bold text-xl uppercase tracking-widest shadow-2xl glow-emerald-strong border border-white/20 flex items-center justify-center gap-3 group transition-shadow hover:shadow-[0_0_60px_rgba(16,185,129,0.4)]"
-                        >
-                            <Search className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-                            Plan Itinerary
-                        </motion.button>
-                    </div>
                 </motion.div>
 
+                {/* Liquid Search Button (Below Search Bar) */}
+                <div className="mt-16 flex justify-center px-4">
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleSearch()}
+                        className="text-white py-5 px-12 rounded-full font-bold text-base md:text-lg uppercase tracking-[0.28em] glow-emerald-strong flex items-center gap-4 group min-w-[240px] btn-primary btn-hero pulse-ring"
+                    >
+                        <Search className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                        Plan Itinerary
+                    </motion.button>
+                </div>
+
                 {/* Bento Grid 2.0: Destinations (Masonry) */}
-                <motion.div variants={itemVariants} className="pt-8">
-                    <p className="text-white/50 text-xs tracking-[0.3em] uppercase mb-8 font-semibold">Trending This Week</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto h-auto md:h-[400px]">
+                <motion.div variants={itemVariants} className="pt-12 md:pt-16">
+                    <p className="text-white/85 text-xs tracking-[0.3em] uppercase mb-8 font-semibold text-center">Trending This Week</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto h-auto md:h-[420px]">
                         {FEATURED_CITIES.map((city, idx) => (
                             <motion.button
                                 key={city.name}
                                 onClick={() => handleSearch(city.query)}
-                                className={`relative rounded-3xl overflow-hidden cursor-pointer group border border-white/10 shadow-lg transition-all hover:shadow-2xl ${city.size === 'large' ? 'sm:col-span-2 sm:row-span-2 h-[300px] sm:h-auto' : 'h-[200px] sm:h-auto'
+                                className={`relative rounded-3xl overflow-hidden cursor-pointer group border border-white/10 shadow-xl transition-all hover:shadow-2xl hover-lift bg-white/5 ${city.size === 'large' ? 'sm:col-span-2 sm:row-span-2 h-[300px] sm:h-auto' : 'h-[200px] sm:h-auto'
                                     }`}
                                 whileHover={{ scale: 1.02, y: -4 }}
                                 whileTap={{ scale: 0.98 }}
@@ -230,6 +305,7 @@ export default function Hero({ onSearch }: HeroProps) {
                                     alt={city.name}
                                     fill
                                     className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                    unoptimized
                                     sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
@@ -241,10 +317,10 @@ export default function Hero({ onSearch }: HeroProps) {
                                 )}
 
                                 <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 flex flex-col items-start transform translate-y-2 group-hover:translate-y-0 transition-transform z-20">
-                                    <h3 className={`font-serif text-white leading-none mb-1 ${city.size === 'large' ? 'text-3xl sm:text-4xl' : 'text-xl'}`}>
+                                    <h3 className={`font-serif text-white leading-none mb-1 whitespace-nowrap ${city.size === 'large' ? 'text-3xl sm:text-4xl' : 'text-lg sm:text-xl'}`}>
                                         {city.name}
                                     </h3>
-                                    <span className="text-white/60 text-xs uppercase tracking-wider opacity-0 group-hover:opacity-100 group-hover:text-emerald-300 transition-all delay-100">
+                                    <span className="text-white/70 text-xs uppercase tracking-wider group-hover:text-emerald-300 transition-all">
                                         {city.country}
                                     </span>
                                 </div>

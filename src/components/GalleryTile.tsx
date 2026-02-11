@@ -23,7 +23,7 @@ export default function GalleryTile({ destination }: { destination: string }) {
 
             <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-6 sm:pb-8 snap-x scrollbar-custom">
                 {MOCK_IMAGES.map((src, idx) => (
-                    <div key={idx} className="relative min-w-[200px] sm:min-w-[250px] h-[250px] sm:h-[300px] rounded-[1.5rem] overflow-hidden snap-center group cursor-pointer border border-white/5 glass-card transition-all">
+                    <div key={idx} className="relative min-w-[200px] sm:min-w-[250px] h-[250px] sm:h-[300px] rounded-[1.5rem] overflow-hidden snap-center group cursor-pointer border border-white/5 glass-card transition-all hover-lift">
                         <Image
                             src={src}
                             alt="Gem"
@@ -31,7 +31,7 @@ export default function GalleryTile({ destination }: { destination: string }) {
                             className="object-cover group-hover:scale-110 transition-transform duration-700"
                             sizes="(max-width: 640px) 200px, 250px"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-70 group-hover:opacity-40 transition-opacity" />
                     </div>
                 ))}
             </div>

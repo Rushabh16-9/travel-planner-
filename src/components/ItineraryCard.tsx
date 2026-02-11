@@ -18,7 +18,7 @@ export default function ItineraryCard({ activity, index }: ItineraryCardProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="glass-dark rounded-2xl p-6 transition-smooth hover:bg-white/5 border border-white/10 h-full flex flex-col justify-between"
+            className="glass-dark rounded-2xl p-6 transition-smooth hover:bg-white/5 border border-white/10 h-full flex flex-col justify-between hover-lift"
         >
             <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">

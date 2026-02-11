@@ -18,7 +18,7 @@ export default function TimelineTile({ itinerary }: { itinerary: any[] }) {
 
             <div className="space-y-4">
                 {itinerary?.map((day: any, idx: number) => (
-                    <div key={idx} className="glass-card rounded-2xl overflow-hidden border border-white/5 transition-all">
+                    <div key={idx} className="glass-card rounded-2xl overflow-hidden border border-white/5 transition-all hover-lift">
                         <button
                             onClick={() => setExpandedDay(expandedDay === idx ? null : idx)}
                             className="w-full flex items-center justify-between p-4 sm:p-6 text-left hover:bg-white/5 transition-all focus-ring-inset"
@@ -33,27 +33,43 @@ export default function TimelineTile({ itinerary }: { itinerary: any[] }) {
                         <AnimatePresence>
                             {expandedDay === idx && (
                                 <motion.div
-                                    initial={{ height: 0 }}
-                                    animate={{ height: 'auto' }}
-                                    exit={{ height: 0 }}
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
                                     className="overflow-hidden"
                                 >
-                                    <div className="p-6 pt-0 space-y-4 border-t border-white/5">
+                                    <div className="p-6 pt-0 space-y-4 border-t border-white/5 relative">
+                                        {/* Animated connector line background */}
+                                        <motion.div
+                                            initial={{ height: 0 }}
+                                            animate={{ height: '100%' }}
+                                            transition={{ duration: 0.8, ease: "easeInOut" }}
+                                            className="absolute left-[2.25rem] top-0 w-px bg-gradient-to-b from-emerald-500/50 to-transparent z-0"
+                                        />
+
                                         {day.activities.map((act: any, actIdx: number) => (
-                                            <div key={actIdx} className="flex gap-4 group">
+                                            <motion.div
+                                                key={actIdx}
+                                                className="flex gap-4 group/activity relative z-10"
+                                                initial={{ x: -10, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: actIdx * 0.1 }}
+                                            >
                                                 <div className="flex flex-col items-center">
-                                                    <div className="w-2 h-2 rounded-full bg-emerald-500 mt-2" />
-                                                    <div className="w-px h-full bg-white/10 group-last:hidden" />
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.5, borderColor: "rgba(16, 185, 129, 0.8)" }}
+                                                        className="w-3 h-3 rounded-full bg-black border-2 border-emerald-500 mt-2 z-10 box-border transition-colors"
+                                                    />
                                                 </div>
-                                                <div className="pb-4">
+                                                <div className="pb-4 group-hover/activity:translate-x-1 transition-transform duration-300">
                                                     <div className="flex items-center gap-3 text-white/50 text-xs mb-1">
-                                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {act.time}</span>
-                                                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {act.price ? `$${act.price}` : 'Free'}</span>
+                                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-emerald-400" /> {act.time}</span>
+                                                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-cyan-400" /> {act.price ? `$${act.price}` : 'Free'}</span>
                                                     </div>
-                                                    <h4 className="text-white font-medium mb-1">{act.title}</h4>
+                                                    <h4 className="text-white font-medium mb-1 group-hover/activity:text-emerald-300 transition-colors">{act.title}</h4>
                                                     <p className="text-white/60 text-sm leading-relaxed">{act.description}</p>
                                                 </div>
-                                            </div>
+                                            </motion.div>
                                         ))}
                                     </div>
                                 </motion.div>

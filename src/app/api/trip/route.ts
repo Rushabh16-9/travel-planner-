@@ -148,10 +148,18 @@ Include ${days} days with 4-5 activities per day. Keep descriptions concise.`;
         console.log("Ollama Raw Output:", fullContent);
 
         try {
-          const jsonString = fullContent.replace(/```json|```/g, '').trim();
-          tripData = JSON.parse(jsonString);
+          // Robust JSON Extraction: Find first { and last }
+          const firstOpen = fullContent.indexOf('{');
+          const lastClose = fullContent.lastIndexOf('}');
+
+          if (firstOpen !== -1 && lastClose !== -1 && lastClose > firstOpen) {
+            const jsonString = fullContent.substring(firstOpen, lastClose + 1);
+            tripData = JSON.parse(jsonString);
+          } else {
+            throw new Error("No JSON structure found in response");
+          }
         } catch (e) {
-          console.error("JSON Parse Failed");
+          console.error("JSON Parse Failed for Ollama output");
           throw new Error("Ollama returned invalid JSON");
         }
 
@@ -183,8 +191,13 @@ Include ${days} days with 4-5 activities per day. Keep descriptions concise.`;
         if (!response.ok) throw new Error(data.error?.message || "Kimi API Error");
 
         const content = data.choices[0].message.content;
-        const jsonString = content.replace(/```json|```/g, '').trim();
-        tripData = JSON.parse(jsonString);
+        const firstOpen = content.indexOf('{');
+        const lastClose = content.lastIndexOf('}');
+        if (firstOpen !== -1 && lastClose !== -1) {
+          tripData = JSON.parse(content.substring(firstOpen, lastClose + 1));
+        } else {
+          throw new Error("Invalid Kimi JSON");
+        }
       } catch (e) {
         console.error("Kimi Failed:", e);
       }
@@ -193,10 +206,18 @@ Include ${days} days with 4-5 activities per day. Keep descriptions concise.`;
     if (!tripData) {
       // --- Priority 3: Gemini (Fallback) ---
       try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Fallback to gemini-pro which is generally available
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
         const result = await model.generateContent(userPrompt);
-        const jsonString = result.response.text().replace(/```json|```/g, '').trim();
-        tripData = JSON.parse(jsonString);
+        const text = result.response.text();
+
+        const firstOpen = text.indexOf('{');
+        const lastClose = text.lastIndexOf('}');
+        if (firstOpen !== -1 && lastClose !== -1) {
+          tripData = JSON.parse(text.substring(firstOpen, lastClose + 1));
+        } else {
+          throw new Error("Invalid Gemini JSON");
+        }
       } catch (e) {
         console.error("Gemini Failed:", e);
       }

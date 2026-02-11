@@ -1,9 +1,27 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function LoadingScreen() {
+    const [messageIndex, setMessageIndex] = useState(0);
+
+    const messages = [
+        "Scanning the Globe...",
+        "Curating Hidden Gems...",
+        "Checking Local Weather...",
+        "Calculating Best Budget...",
+        "Finalizing Itinerary..."
+    ];
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setMessageIndex((prev) => (prev + 1) % messages.length);
+        }, 1500);
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
             {/* Aurora Background */}
@@ -13,15 +31,26 @@ export default function LoadingScreen() {
                 <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    className="mb-6 inline-block"
+                    className="mb-6 inline-block pulse-ring"
                 >
-                    <Loader2 className="w-16 h-16 text-emerald-400 opacity-80" />
+                    <Loader2 className="w-16 h-16 text-emerald-400 opacity-80 icon-wiggle" />
                 </motion.div>
-                <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4 tracking-tight">
-                    Scanning the Globe...
-                </h2>
-                <p className="text-white/60 text-lg font-light tracking-wide">
-                    Curating hidden gems and local secrets just for you.
+                <div className="h-16 flex items-center justify-center overflow-hidden relative">
+                    <AnimatePresence mode='wait'>
+                        <motion.h2
+                            key={messageIndex}
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -20, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="text-4xl md:text-5xl font-serif font-bold text-white mb-4 tracking-tight absolute w-full"
+                        >
+                            {messages[messageIndex]}
+                        </motion.h2>
+                    </AnimatePresence>
+                </div>
+                <p className="text-white/60 text-lg font-light tracking-wide mt-4">
+                    Crafting your perfect journey...
                 </p>
             </div>
 

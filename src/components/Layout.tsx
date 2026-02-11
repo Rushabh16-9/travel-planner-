@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plane } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LayoutProps {
@@ -38,10 +38,7 @@ export default function Layout({ children, demoMode, onToggleDemoMode }: LayoutP
                         scrolled ? "glass-capsule bg-black/40 shadow-2xl backdrop-blur-md" : "bg-transparent border-transparent"
                     )}
                 >
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl shadow-lg shadow-emerald-500/20">
-                            <Plane className="w-5 h-5 text-white transform -rotate-45" />
-                        </div>
+                    <div className="flex items-center gap-4">
                         <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-emerald-200 to-cyan-200 tracking-tight">
                             VoyageAI
                         </span>
@@ -56,9 +53,12 @@ export default function Layout({ children, demoMode, onToggleDemoMode }: LayoutP
                         </button>
                         <button
                             onClick={onToggleDemoMode}
-                            className="text-xs font-bold uppercase tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors bg-emerald-500/10 px-4 py-2 rounded-full border border-emerald-500/20"
+                            className="hidden"
                         >
                             {demoMode ? 'Live Mode' : 'Demo 2.0'}
+                        </button>
+                        <button className="btn-ghost rounded-full p-2 text-white/80 hover:text-white hover:bg-white/10 transition-all">
+                            <Settings className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
