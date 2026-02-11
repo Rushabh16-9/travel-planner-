@@ -7,7 +7,6 @@ import TripResults from '@/components/TripResults';
 import LoadingScreen from '@/components/LoadingScreen';
 
 export default function Home() {
-  const [demoMode, setDemoMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [tripData, setTripData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,8 +32,8 @@ export default function Home() {
   };
 
   return (
-    <Layout demoMode={demoMode} onToggleDemoMode={() => setDemoMode(!demoMode)}>
-      <div className="min-h-screen bg-[#020617] text-white">
+    <Layout>
+      <div className="min-h-screen bg-white text-slate-900">
 
         {/* State: Hero / Search */}
         {!tripData && !isLoading && (

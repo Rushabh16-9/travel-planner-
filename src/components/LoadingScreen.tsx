@@ -23,9 +23,9 @@ export default function LoadingScreen() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="min-h-screen bg-white flex flex-col items-center justify-center relative overflow-hidden">
             {/* Aurora Background */}
-            <div className="absolute inset-0 pointer-events-none aurora-gradient opacity-20" />
+            <div className="absolute inset-0 pointer-events-none aurora-gradient opacity-10" />
 
             <div className="z-10 text-center mb-12">
                 <motion.div
@@ -33,7 +33,7 @@ export default function LoadingScreen() {
                     transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                     className="mb-6 inline-block pulse-ring"
                 >
-                    <Loader2 className="w-16 h-16 text-emerald-400 opacity-80 icon-wiggle" />
+                    <Loader2 className="w-16 h-16 text-emerald-500 opacity-80 icon-wiggle" />
                 </motion.div>
                 <div className="h-16 flex items-center justify-center overflow-hidden relative">
                     <AnimatePresence mode='wait'>
@@ -43,13 +43,13 @@ export default function LoadingScreen() {
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: -20, opacity: 0 }}
                             transition={{ duration: 0.3 }}
-                            className="text-4xl md:text-5xl font-serif font-bold text-white mb-4 tracking-tight absolute w-full"
+                            className="text-4xl md:text-5xl font-serif font-bold text-slate-800 mb-4 tracking-tight absolute w-full"
                         >
                             {messages[messageIndex]}
                         </motion.h2>
                     </AnimatePresence>
                 </div>
-                <p className="text-white/60 text-lg font-light tracking-wide mt-4">
+                <p className="text-slate-500 text-lg font-light tracking-wide mt-4">
                     Crafting your perfect journey...
                 </p>
             </div>
@@ -57,12 +57,12 @@ export default function LoadingScreen() {
             {/* Skeleton Bento Grid */}
             <div className="w-full max-w-5xl px-6 grid grid-cols-1 md:grid-cols-12 gap-6 opacity-30">
                 {/* Timeline Skeleton */}
-                <div className="md:col-span-8 bg-white/5 rounded-[2rem] h-[300px] animate-pulse border border-white/5" />
+                <div className="md:col-span-8 bg-slate-100 rounded-[2rem] h-[300px] animate-pulse border border-slate-200" />
 
                 {/* Right Column Skeletons */}
                 <div className="md:col-span-4 flex flex-col gap-6">
-                    <div className="bg-white/5 rounded-[2rem] h-[140px] animate-pulse border border-white/5" />
-                    <div className="bg-white/5 rounded-[2rem] h-[140px] animate-pulse border border-white/5" />
+                    <div className="bg-slate-100 rounded-[2rem] h-[140px] animate-pulse border border-slate-200" />
+                    <div className="bg-slate-100 rounded-[2rem] h-[140px] animate-pulse border border-slate-200" />
                 </div>
             </div>
 

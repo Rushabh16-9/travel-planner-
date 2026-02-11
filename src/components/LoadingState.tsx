@@ -22,11 +22,11 @@ export default function LoadingState() {
 
             {/* Shimmer Text */}
             <div className="text-center space-y-6 z-10 max-w-2xl">
-                <h2 className="text-3xl sm:text-4xl font-black text-white shimmer leading-tight">
+                <h2 className="text-3xl sm:text-4xl font-black text-slate-800 shimmer leading-tight">
                     AI is scouting the best hidden gems for you...
                 </h2>
 
-                <p className="text-lg text-slate-400 font-medium">
+                <p className="text-lg text-slate-500 font-medium">
                     Analyzing destinations, activities, and creating your perfect itinerary
                 </p>
 
@@ -43,7 +43,7 @@ export default function LoadingState() {
                             style={{ animationDelay: step.delay }}
                         >
                             <step.icon className="w-4 h-4 text-primary animate-pulse" />
-                            <span className="text-sm text-slate-300">{step.text}</span>
+                            <span className="text-sm text-slate-600">{step.text}</span>
                         </div>
                     ))}
                 </div>
