@@ -42,7 +42,16 @@ export async function POST(req: Request) {
     // 2. Prepare Context
     // Extract currency from budget string (e.g. "USD 2000") -> "USD"
     const currencyCode = budget?.split(' ')[0] || 'USD';
-    const budgetAmount = parseInt(budget?.replace(/\D/g, '') || '2000');
+    // Smart budget defaults based on destination tier
+    const LUXURY_CITIES = ['dubai', 'maldives', 'singapore', 'monaco', 'santorini', 'mykonos', 'bora bora', 'st barts', 'aspen', 'zurich', 'geneva', 'london', 'paris', 'new york', 'tokyo', 'hong kong', 'sydney', 'amalfi', 'positano'];
+    const MIDRANGE_CITIES = ['bali', 'barcelona', 'rome', 'amsterdam', 'prague', 'lisbon', 'istanbul', 'bangkok', 'kyoto', 'osaka', 'seoul', 'kuala lumpur', 'mexico city', 'buenos aires', 'rio', 'cape town', 'marrakech', 'cairo'];
+    const destLower = (query || '').toLowerCase();
+    const isLuxury = LUXURY_CITIES.some(c => destLower.includes(c));
+    const isMidrange = MIDRANGE_CITIES.some(c => destLower.includes(c));
+    // Per person per night baseline
+    const ppn = isLuxury ? 350 : isMidrange ? 180 : 90;
+    const smartDefault = ppn * (guests || 2) * (days || 3);
+    const budgetAmount = adjustedBudget || parseInt(budget?.replace(/\D/g, '') || '0') || smartDefault;
 
     let context = `Destination: ${geoData?.formatted || query}\n`;
     if (budget) context += `Budget Constraint: ${budget}\n`;
@@ -66,7 +75,7 @@ export async function POST(req: Request) {
     const currencyFinal = reqCurrency || currencyCode;
     const guestsFinal = guests || 2;
     // Support budget re-planning from TripResults
-    const budgetFinal = adjustedBudget || budgetAmount;
+    const budgetFinal = budgetAmount;
 
     // Prompt Template
     const systemPrompt = "You are a travel assistant. Return ONLY valid JSON. No markdown, no code fences.";
