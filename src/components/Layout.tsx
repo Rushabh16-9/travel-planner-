@@ -78,8 +78,8 @@ export default function Layout({ children }: LayoutProps) {
                         </span>
                     </Link>
 
-                    {/* Desktop nav */}
-                    <nav className="hidden md:flex" style={{ alignItems: 'center', gap: '0.125rem' }}>
+                    {/* Desktop nav — always visible on screens ≥768px */}
+                    <nav className="desktop-nav" style={{ alignItems: 'center', gap: '0.125rem' }}>
                         {NAV_LINKS.map(({ label, href }) => {
                             const isActive = pathname === href;
                             return (
@@ -101,6 +101,16 @@ export default function Layout({ children }: LayoutProps) {
                             );
                         })}
                     </nav>
+
+                    <style>{`
+                        .desktop-nav {
+                            display: flex !important;
+                        }
+                        @media (max-width: 640px) {
+                            .desktop-nav { display: none !important; }
+                        }
+                    `}</style>
+
 
                     {/* Login button */}
                     <button
