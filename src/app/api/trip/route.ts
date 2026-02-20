@@ -9,7 +9,7 @@ const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_KEY || '');
 
 export async function POST(req: Request) {
   try {
-    const { destination, days = 3, budget, origin, fromDate, toDate, guests, currency: reqCurrency } = await req.json();
+    const { destination, days = 3, budget, origin, fromDate, toDate, guests, currency: reqCurrency, adjustedBudget } = await req.json();
     console.log("🚀 API Received:", destination, "Days:", days, "Origin:", origin, "Currency:", reqCurrency);
 
     const query = destination;
@@ -65,6 +65,8 @@ export async function POST(req: Request) {
     const groqKey = process.env.GROQ_API_KEY;
     const currencyFinal = reqCurrency || currencyCode;
     const guestsFinal = guests || 2;
+    // Support budget re-planning from TripResults
+    const budgetFinal = adjustedBudget || budgetAmount;
 
     // Prompt Template
     const systemPrompt = "You are a travel assistant. Return ONLY valid JSON. No markdown, no code fences.";
@@ -73,14 +75,20 @@ Context: ${context}
 ${origin ? `Travelling from: ${origin}` : ''}
 Guests: ${guestsFinal}
 Currency: ${currencyFinal}
+Budget: ${budgetFinal} ${currencyFinal}
 ${fromDate ? `Travel dates: ${fromDate} to ${toDate}` : ''}
 
-Output format (return ONLY this JSON, nothing else):
+Output ONLY this JSON (no extra text):
 {
   "destination": "${geoData?.formatted || query}",
   "duration": ${days},
-  "totalCost": ${budgetAmount},
+  "totalCost": ${budgetFinal},
   "currency": "${currencyFinal}",
+  "flightEstimate": {
+    "economy": 650,
+    "business": 1800,
+    "currency": "${currencyFinal}"
+  },
   "itinerary": [
     {
       "day": 1,
@@ -89,16 +97,33 @@ Output format (return ONLY this JSON, nothing else):
         {
           "time": "09:00 AM",
           "title": "Activity Name",
-          "description": "Brief description",
+          "description": "Brief engaging description",
           "vibe": "Culture",
           "estimatedCost": 50,
-          "importance": "High"
+          "importance": "High",
+          "transportFromPrevious": null
+        },
+        {
+          "time": "11:30 AM",
+          "title": "Second Activity",
+          "description": "Brief engaging description",
+          "vibe": "Foodie",
+          "estimatedCost": 30,
+          "importance": "Medium",
+          "transportFromPrevious": { "mode": "Metro", "cost": 3 }
         }
       ]
     }
   ]
 }
-Include ${days} days with 4-5 activities per day. Vibe options: Adventure, Foodie, Culture, Chill. Keep descriptions concise but engaging.`;
+
+Rules:
+- Include ${days} days, 4-5 activities each
+- Vibe options: Adventure, Foodie, Culture, Chill
+- transportFromPrevious is null for the first activity of each day; for subsequent activities use realistic local transport (Walk/Metro/Bus/Taxi) with realistic cost in ${currencyFinal}
+- flightEstimate should reflect realistic round-trip prices from ${origin || 'a major hub'} to ${query}
+- Fit activities to the ${budgetFinal} ${currencyFinal} budget
+- Descriptions concise but engaging (1-2 sentences)`;
 
     // --- Priority 1: Groq (Fast & Free) ---
     if (groqKey) {

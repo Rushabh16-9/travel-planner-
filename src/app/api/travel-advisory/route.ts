@@ -14,19 +14,23 @@ export async function POST(req: NextRequest) {
         const month = new Date(fromDate).toLocaleString('en-US', { month: 'long' });
         const year = new Date(fromDate).getFullYear();
 
-        const prompt = `You are a travel advisor AI. Give a brief travel advisory for visiting ${destination} from ${fromDate} to ${toDate} (${nights} nights, arriving in ${month} ${year}).
+        const prompt = `You are a travel advisor AI. Give a detailed travel advisory for visiting ${destination} from ${fromDate} to ${toDate} (${nights} nights, arriving in ${month} ${year}).
 
-Consider: weather, peak/off-season, local events, festivals, monsoon/hurricane season, extreme temperatures, crowd levels, and value for money.
+Consider: weather, temperature, peak/off-season, local events, festivals, monsoon/hurricane/storm season, crowd levels, value for money.
 
 Respond with ONLY a JSON object — no markdown, no code fences:
-{"verdict":"good","message":"One sentence max 20 words explaining conditions."}
-
-verdict must be exactly one of: "good", "warning", "poor"
+{
+  "verdict": "good" | "warning" | "poor",
+  "headline": "Short punchy title max 8 words",
+  "message": "1-2 sentences explaining the conditions in detail.",
+  "temp": "e.g. 28°C / 82°F",
+  "season": "e.g. Dry Season or Peak Season"
+}
 
 Examples:
-- good: Perfect timing — warm dry weather and fewer crowds than peak summer.
-- warning: Monsoon season begins mid-month; expect heavy rain and high humidity.
-- poor: Peak cyclone season — most resorts close and advisories are active.`;
+- good:    {"verdict":"good",    "headline":"Perfect weather for sightseeing",      "message":"It's dry season with clear skies and warm temperatures. Crowds are moderate and prices are reasonable.", "temp":"28°C / 82°F", "season":"Dry Season"}
+- warning: {"verdict":"warning", "headline":"Monsoon season starts mid-month",       "message":"Expect heavy afternoon rain and high humidity. Indoor activities are still enjoyable but outdoor excursions may be disrupted.", "temp":"31°C / 88°F", "season":"Monsoon Season"}
+- poor:    {"verdict":"poor",    "headline":"Peak cyclone season — avoid if possible","message":"Active storm advisories are in place and many resorts close during this period. Consider rescheduling.", "temp":"30°C / 86°F", "season":"Cyclone Season"}`;
 
         const groqKey = process.env.GROQ_API_KEY;
         if (!groqKey) throw new Error('GROQ_API_KEY not set');
@@ -40,11 +44,11 @@ Examples:
             body: JSON.stringify({
                 model: 'llama-3.3-70b-versatile',
                 messages: [
-                    { role: 'system', content: 'You are a travel advisor. Return ONLY valid JSON. No markdown. No explanation.' },
+                    { role: 'system', content: 'You are a travel advisor. Return ONLY valid JSON. No markdown, no extra text.' },
                     { role: 'user', content: prompt },
                 ],
                 temperature: 0.3,
-                max_tokens: 120,
+                max_tokens: 200,
             }),
         });
 
@@ -56,14 +60,15 @@ Examples:
         if (!jsonMatch) throw new Error('No JSON in response');
 
         const parsed = JSON.parse(jsonMatch[0]);
-        console.log(`✅ Groq Advisory [${parsed.verdict}]: ${parsed.message}`);
+        console.log(`✅ Groq Advisory [${parsed.verdict}]:`, parsed.headline);
         return NextResponse.json(parsed);
 
     } catch (err) {
         console.error('Travel advisory error:', err);
         return NextResponse.json({
             verdict: 'neutral',
-            message: 'AI advisory unavailable right now. Check local travel guides for conditions.',
+            headline: 'Advisory unavailable',
+            message: 'Could not fetch AI travel advisory right now. Check local travel guides for current conditions.',
         });
     }
 }
