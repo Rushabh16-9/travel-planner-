@@ -7,63 +7,69 @@ import TripResults from '@/components/TripResults';
 import LoadingScreen from '@/components/LoadingScreen';
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [tripData, setTripData] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [tripData, setTripData] = useState<any>(null);
+    const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = async (destination: string, days: number, budget?: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // Use destination as the query for geocoding purposes
-      const response = await fetch('/api/trip', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ destination, days, budget }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
-      setTripData(data);
-    } catch (err) {
-      setError('Failed to plan trip. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const handleSearch = async (destination: string, days: number) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const response = await fetch('/api/trip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ destination, days }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Unexpected error');
+            setTripData(data);
+        } catch {
+            setError('Could not plan your trip. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-  return (
-    <Layout>
-      <div className="min-h-screen bg-white text-slate-900">
+    return (
+        <Layout>
 
-        {/* State: Hero / Search */}
-        {!tripData && !isLoading && (
-          <>
+            {/* Error toast */}
             {error && (
-              <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 glass-dark px-8 py-4 text-red-300 rounded-full flex items-center gap-4 border border-red-500/30">
-                <p className="font-medium">{error}</p>
-                <button
-                  onClick={() => setError(null)}
-                  className="bg-red-500/20 hover:bg-red-500/30 p-1 rounded-full px-3 text-xs font-bold text-red-200"
-                >
-                  Dismiss
-                </button>
-              </div>
+                <div style={{
+                    position: 'fixed', top: '5.5rem', left: '50%', transform: 'translateX(-50%)',
+                    zIndex: 200,
+                    background: 'white',
+                    border: '1px solid rgba(255,107,107,0.3)',
+                    borderLeft: '4px solid #FF6B6B',
+                    borderRadius: '0.75rem',
+                    padding: '0.875rem 1.25rem',
+                    boxShadow: '0 8px 32px rgba(26,35,64,0.14)',
+                    display: 'flex', alignItems: 'center', gap: '1rem',
+                    maxWidth: '480px', width: '90vw',
+                }}>
+                    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.9rem', color: '#1A2340', fontWeight: 500, flex: 1 }}>
+                        {error}
+                    </p>
+                    <button
+                        onClick={() => setError(null)}
+                        style={{
+                            background: 'rgba(255,107,107,0.1)', border: 'none', borderRadius: '100px',
+                            padding: '0.25rem 0.75rem', color: '#FF6B6B', fontWeight: 700,
+                            fontSize: '0.8125rem', cursor: 'pointer',
+                        }}
+                    >
+                        Dismiss
+                    </button>
+                </div>
             )}
-            <Hero onSearch={handleSearch} />
-          </>
-        )}
 
-        {/* State: Loading */}
-        {isLoading && <LoadingScreen />}
+            {/* Views */}
+            {!tripData && !isLoading && <Hero onSearch={handleSearch} />}
+            {isLoading && <LoadingScreen />}
+            {tripData && !isLoading && (
+                <TripResults tripData={tripData} onBack={() => setTripData(null)} />
+            )}
 
-        {/* State: Results (Bento Grid) */}
-        {tripData && !isLoading && (
-          <TripResults
-            tripData={tripData}
-            onBack={() => setTripData(null)}
-          />
-        )}
-      </div>
-    </Layout>
-  );
+        </Layout>
+    );
 }

@@ -1,8 +1,8 @@
 'use client';
 
-import { Wallet, TrendingUp } from 'lucide-react';
+import { Wallet } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
-import { motion } from '@/lib/motion';
+import { motion } from 'framer-motion';
 
 interface BudgetTrackerProps {
     totalCost: number;
@@ -21,18 +21,18 @@ export default function BudgetTracker({ totalCost, currency = 'EUR' }: BudgetTra
     const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
     return (
-        <div className="glass rounded-2xl p-6 h-full">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 h-full">
             <div className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                    <Wallet className="w-4 h-4 text-emerald-400" />
+                <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                    <Wallet className="w-4 h-4 text-red-600" />
                 </div>
-                <h3 className="font-semibold text-white">Budget Tracker</h3>
+                <h3 className="font-semibold text-slate-900">Budget Tracker</h3>
             </div>
 
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <p className="text-sm text-white/40 mb-1">Total Cost</p>
-                    <p className="text-3xl font-bold text-white">
+                    <p className="text-sm text-slate-500 mb-1">Total Cost</p>
+                    <p className="text-3xl font-bold text-slate-900">
                         {formatCurrency(totalCost, currency)}
                     </p>
                 </div>
@@ -40,7 +40,7 @@ export default function BudgetTracker({ totalCost, currency = 'EUR' }: BudgetTra
                 <div className="relative w-24 h-24">
                     <svg height={radius * 2} width={radius * 2} className="rotate-[-90deg]">
                         <circle
-                            stroke="rgba(255,255,255,0.1)"
+                            stroke="#e2e8f0"
                             strokeWidth={stroke}
                             fill="transparent"
                             r={normalizedRadius}
@@ -51,7 +51,7 @@ export default function BudgetTracker({ totalCost, currency = 'EUR' }: BudgetTra
                             initial={{ strokeDashoffset: circumference }}
                             animate={{ strokeDashoffset }}
                             transition={{ duration: 1.5, ease: "easeOut" }}
-                            stroke="url(#gradient)"
+                            stroke="#dc2626"
                             strokeWidth={stroke}
                             strokeLinecap="round"
                             fill="transparent"
@@ -60,28 +60,22 @@ export default function BudgetTracker({ totalCost, currency = 'EUR' }: BudgetTra
                             cy={radius}
                             style={{ strokeDasharray: `${circumference} ${circumference}` }}
                         />
-                        <defs>
-                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#10b981" />
-                                <stop offset="100%" stopColor="#3b82f6" />
-                            </linearGradient>
-                        </defs>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-lg font-bold text-white">{Math.round(percentage)}%</span>
+                        <span className="text-lg font-bold text-slate-900">{Math.round(percentage)}%</span>
                     </div>
                 </div>
             </div>
 
             <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-white/5">
-                    <span className="text-sm text-white/60">Budget Limit</span>
-                    <span className="text-sm font-semibold text-white">{formatCurrency(budgetLimit, currency)}</span>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100">
+                    <span className="text-sm text-slate-600">Budget Limit</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(budgetLimit, currency)}</span>
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                    <span className="text-sm text-emerald-400">Remaining</span>
-                    <span className="text-sm font-semibold text-emerald-400">{formatCurrency(remaining, currency)}</span>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+                    <span className="text-sm text-emerald-700">Remaining</span>
+                    <span className="text-sm font-semibold text-emerald-700">{formatCurrency(remaining, currency)}</span>
                 </div>
             </div>
         </div>

@@ -19,20 +19,28 @@ export default function GalleryTile({ destination }: { destination: string }) {
             transition={{ delay: 0.3 }}
             className="w-full"
         >
-            <h3 className="text-slate-800 font-serif font-bold text-xl sm:text-2xl mb-4 sm:mb-6 pl-2">Hidden Gems in {destination}</h3>
+            <h3 className="text-slate-900 font-bold text-xl mb-4">
+                Hidden Gems in {destination}
+            </h3>
 
-            <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-6 sm:pb-8 snap-x scrollbar-custom">
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
                 {MOCK_IMAGES.map((src, idx) => (
-                    <div key={idx} className="relative min-w-[200px] sm:min-w-[250px] h-[250px] sm:h-[300px] rounded-[1.5rem] overflow-hidden snap-center group cursor-pointer border border-slate-200 glass-card transition-all hover-lift">
+                    <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 + idx * 0.1 }}
+                        className="relative min-w-[200px] h-[250px] rounded-xl overflow-hidden shadow-md group border border-slate-200"
+                    >
                         <Image
                             src={src}
                             alt="Gem"
                             fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-700"
-                            sizes="(max-width: 640px) 200px, 250px"
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            sizes="200px"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-70 group-hover:opacity-40 transition-opacity" />
-                    </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    </motion.div>
                 ))}
             </div>
         </motion.div>

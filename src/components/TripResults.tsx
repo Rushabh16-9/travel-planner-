@@ -1,165 +1,332 @@
 'use client';
 
-import { motion, Variants } from 'framer-motion';
-import { ArrowLeft, Download, Share2 } from 'lucide-react';
+import { ArrowLeft, Download, Share2, DollarSign, Cloud, Sun, Star, MapPin, Clock, Utensils, Camera, Mountain } from 'lucide-react';
 import Image from 'next/image';
-import TimelineTile from './TimelineTile';
-import WeatherTile from './WeatherTile';
-import BudgetTile from './BudgetTile';
-import GalleryTile from './GalleryTile';
+import { useState } from 'react';
+
+interface Activity {
+    time?: string;
+    name?: string;
+    title?: string;
+    description?: string;
+    type?: string;
+    estimatedCost?: number;
+    price?: number | string;
+    importance?: string;
+    vibe?: string;
+}
+
+interface DayItinerary {
+    day: number;
+    date?: string;
+    activities?: Activity[];
+}
+
+interface TripDataType {
+    destination: string;
+    duration?: number;
+    itinerary?: DayItinerary[];
+    totalCost?: number;
+    guests?: number;
+    image?: string;
+}
 
 interface TripResultsProps {
-    tripData: any;
+    tripData: TripDataType;
     onBack: () => void;
 }
 
-// Stagger animation variants for Bento Grid
-const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.15,
-            delayChildren: 0.2,
-        },
-    },
+const VIBE_COLORS: Record<string, { bg: string; text: string; icon: React.ComponentType<any> }> = {
+    Adventure: { bg: 'rgba(255,107,107,0.1)', text: '#E85555', icon: Mountain },
+    Foodie: { bg: 'rgba(232,168,56,0.12)', text: '#C67D0D', icon: Utensils },
+    Culture: { bg: 'rgba(78,205,196,0.1)', text: '#2A9D8F', icon: Camera },
+    Chill: { bg: 'rgba(132,160,255,0.12)', text: '#4B6BFF', icon: Cloud },
 };
 
-const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
-    show: {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        transition: { type: 'spring', stiffness: 100, damping: 15 }
-    },
-};
+function getVibeStyle(vibe?: string) {
+    return VIBE_COLORS[vibe || ''] || { bg: 'rgba(26,35,64,0.07)', text: '#4A5568', icon: MapPin };
+}
 
 export default function TripResults({ tripData, onBack }: TripResultsProps) {
+    const [activeDay, setActiveDay] = useState(0);
+
+    const itinerary = tripData.itinerary || [];
+    const currentDay = itinerary[activeDay];
+    const totalActivities = itinerary.reduce((sum, d) => sum + (d.activities?.length || 0), 0);
+
     return (
-        <motion.div 
-            className="relative min-h-screen bg-white pb-24"
-            initial="hidden"
-            animate="show"
-            variants={containerVariants}
-        >
+        <div style={{ background: '#FFFBF5', minHeight: '100vh' }}>
 
-            {/* Header / Hero Image */}
-            <div className="relative h-[50vh] w-full overflow-hidden">
-                <motion.div
-                    initial={{ scale: 1.1 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 1.5 }}
-                    className="absolute inset-0"
-                >
-                    <Image
-                        src={tripData.image || "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1"}
-                        alt={tripData.destination}
-                        fill
-                        className="object-cover opacity-40"
-                        priority
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-white" />
-                    {/* Gradient Mesh Overlay */}
-                    <div className="absolute inset-0 gradient-mesh" />
-                </motion.div>
+            {/* ── HERO BANNER ── */}
+            <div style={{ position: 'relative', height: '60vh', minHeight: '420px', overflow: 'hidden' }}>
+                <Image
+                    src={tripData.image || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2000&auto=format&fit=crop'}
+                    alt={tripData.destination}
+                    fill
+                    priority
+                    unoptimized
+                    style={{ objectFit: 'cover', objectPosition: 'center 40%' }}
+                />
+                <div style={{
+                    position: 'absolute', inset: 0,
+                    background: 'linear-gradient(to bottom, rgba(13,21,38,0.3) 0%, rgba(13,21,38,0.6) 100%)',
+                }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(13,21,38,0.5), transparent 60%)' }} />
 
-                <div className="absolute bottom-12 left-0 right-0 max-w-7xl mx-auto px-6 z-10">
-                    <motion.button
+                {/* Bottom fade */}
+                <div style={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '180px',
+                    background: 'linear-gradient(to top, #FFFBF5, transparent)',
+                }} />
+
+                {/* Back button */}
+                <div style={{ position: 'absolute', top: '6rem', left: 0, right: 0, maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
+                    <button
                         onClick={onBack}
-                        className="mb-6 flex items-center gap-2 text-emerald-600 transition-all text-sm font-bold uppercase tracking-widest px-4 py-2 rounded-full hover:scale-105 focus-ring btn-ghost hover-lift"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 }}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '0.5rem',
+                            background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)',
+                            border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px',
+                            padding: '0.5rem 1rem', color: 'white', cursor: 'pointer',
+                            fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: '0.875rem',
+                            transition: 'background 0.2s',
+                        }}
                     >
-                        <ArrowLeft className="w-4 h-4" /> New Search
-                    </motion.button>
-                    <motion.h1
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                        className="text-5xl sm:text-6xl md:text-8xl font-extrabold tracking-tighter mb-2 bg-gradient-to-b from-slate-800 to-slate-500 bg-clip-text text-transparent"
-                    >
+                        <ArrowLeft style={{ width: '0.875rem', height: '0.875rem' }} />
+                        Back to search
+                    </button>
+                </div>
+
+                {/* Hero text */}
+                <div style={{
+                    position: 'absolute', bottom: '2rem', left: 0, right: 0,
+                    maxWidth: '1280px', margin: '0 auto', padding: '0 2rem',
+                }}>
+                    <div className="chip-sage" style={{ marginBottom: '0.75rem', display: 'inline-flex' }}>AI-Planned Itinerary</div>
+                    <h1 style={{
+                        fontFamily: 'Fraunces, serif', fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+                        fontWeight: 700, color: 'white', marginBottom: '0.5rem', letterSpacing: '-0.02em',
+                    }}>
                         {tripData.destination}
-                    </motion.h1>
-                    <motion.p 
-                        className="text-slate-500 text-lg sm:text-xl font-light tracking-wide"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                    >
-                        {tripData.duration} Days • {tripData.itinerary?.length || 0} Experiences
-                    </motion.p>
+                    </h1>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.625rem' }}>
+                        <span className="chip" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', borderColor: 'rgba(255,255,255,0.2)' }}>
+                            {tripData.duration || itinerary.length} days
+                        </span>
+                        <span className="chip" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', borderColor: 'rgba(255,255,255,0.2)' }}>
+                            {totalActivities} experiences
+                        </span>
+                        <span className="chip" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', borderColor: 'rgba(255,255,255,0.2)' }}>
+                            {tripData.guests || 2} guests
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            {/* Bento Grid Layout */}
-            <motion.div 
-                className="max-w-7xl mx-auto px-4 sm:px-6 relative z-20 -mt-20"
-                variants={containerVariants}
-            >
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 perspective-1000">
+            {/* ── MAIN CONTENT ── */}
+            <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '2rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '2rem', alignItems: 'start' }}>
 
-                    {/* Top Row - Timeline */}
-                    <motion.div
-                        className="md:col-span-8 glass-card-elevated rounded-3xl overflow-hidden group relative border border-slate-200 hover:border-emerald-500/30 transition-colors duration-300"
-                        variants={itemVariants}
-                        whileHover={{ y: -5, rotateX: 2, rotateY: 2, scale: 1.01 }}
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                        <TimelineTile itinerary={tripData.itinerary} />
-                    </motion.div>
+                    {/* ── LEFT: Itinerary ── */}
+                    <div>
+                        {/* Day selector tabs */}
+                        <div style={{
+                            display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem',
+                            marginBottom: '1.75rem', scrollbarWidth: 'none',
+                        }}>
+                            {itinerary.map((day, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setActiveDay(i)}
+                                    style={{
+                                        flexShrink: 0,
+                                        padding: '0.625rem 1.25rem',
+                                        borderRadius: '100px',
+                                        border: activeDay === i ? 'none' : '1.5px solid rgba(26,35,64,0.12)',
+                                        background: activeDay === i ? '#FF6B6B' : 'white',
+                                        color: activeDay === i ? 'white' : '#4A5568',
+                                        fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer',
+                                        fontFamily: 'DM Sans, sans-serif',
+                                        boxShadow: activeDay === i ? '0 4px 16px rgba(255,107,107,0.3)' : 'none',
+                                        transition: 'all 0.2s',
+                                    }}
+                                >
+                                    Day {day.day}
+                                </button>
+                            ))}
+                        </div>
 
-                    {/* Right Column - Weather & Budget */}
-                    <div className="md:col-span-4 flex flex-col gap-6 sm:gap-8">
-                        <motion.div
-                            className="glass-card-elevated rounded-3xl overflow-hidden group relative border border-slate-200 hover:border-cyan-500/30 transition-colors duration-300"
-                            variants={itemVariants}
-                            whileHover={{ y: -5, rotateX: 2, rotateY: -2, scale: 1.02 }}
-                        >
-                            <div className="absolute inset-0 bg-gradient-to-bl from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                            <WeatherTile coordinates={tripData.coordinates} />
-                        </motion.div>
-                        <motion.div
-                            className="glass-card-elevated rounded-3xl overflow-hidden group relative border border-slate-200 hover:border-emerald-500/30 transition-colors duration-300"
-                            variants={itemVariants}
-                            whileHover={{ y: -5, rotateX: 2, rotateY: -2, scale: 1.02 }}
-                        >
-                            <div className="absolute inset-0 bg-gradient-to-tl from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                            <BudgetTile totalCost={tripData.totalCost} />
-                        </motion.div>
+                        {/* Day header */}
+                        {currentDay && (
+                            <div className="card" style={{ padding: '2rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+                                    <div>
+                                        <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: '1.625rem', color: '#1A2340', marginBottom: '0.25rem' }}>
+                                            Day {currentDay.day}
+                                        </h2>
+                                        {currentDay.date && (
+                                            <p style={{ color: '#8A94A6', fontSize: '0.875rem', fontWeight: 500 }}>{currentDay.date}</p>
+                                        )}
+                                    </div>
+                                    <span className="chip">
+                                        {currentDay.activities?.length || 0} activities
+                                    </span>
+                                </div>
+
+                                {/* Activities timeline */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                                    {currentDay.activities?.map((act, i) => {
+                                        const vibe = getVibeStyle(act.vibe);
+                                        const VibeIcon = vibe.icon;
+                                        const isLast = i === (currentDay.activities?.length || 0) - 1;
+
+                                        return (
+                                            <div key={i} style={{ display: 'flex', gap: '1.25rem', position: 'relative' }}>
+                                                {/* Timeline column */}
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '0.125rem' }}>
+                                                    <div className="timeline-dot" />
+                                                    {!isLast && (
+                                                        <div style={{
+                                                            width: '1.5px', flex: 1, minHeight: '3rem',
+                                                            background: 'rgba(26,35,64,0.08)',
+                                                            margin: '4px 0',
+                                                        }} />
+                                                    )}
+                                                </div>
+
+                                                {/* Activity card */}
+                                                <div style={{
+                                                    flex: 1,
+                                                    padding: '0 0 1.75rem',
+                                                    paddingBottom: isLast ? 0 : '1.75rem',
+                                                }}>
+                                                    {/* Time */}
+                                                    {act.time && (
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.375rem' }}>
+                                                            <Clock style={{ width: '0.75rem', height: '0.75rem', color: '#8A94A6' }} />
+                                                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#8A94A6', letterSpacing: '0.04em' }}>
+                                                                {act.time}
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Title + vibe badge */}
+                                                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                                                        <h4 style={{
+                                                            fontFamily: 'DM Sans, sans-serif',
+                                                            fontSize: '1rem', fontWeight: 700,
+                                                            color: '#1A2340', marginBottom: '0.375rem',
+                                                        }}>
+                                                            {act.name || act.title || 'Activity'}
+                                                        </h4>
+                                                        {act.vibe && (
+                                                            <div style={{
+                                                                display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                                                                background: vibe.bg, borderRadius: '100px',
+                                                                padding: '0.2rem 0.625rem', flexShrink: 0,
+                                                            }}>
+                                                                <VibeIcon style={{ width: '0.625rem', height: '0.625rem', color: vibe.text }} />
+                                                                <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: vibe.text, letterSpacing: '0.04em' }}>
+                                                                    {act.vibe}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Description */}
+                                                    <p style={{ color: '#4A5568', fontSize: '0.9rem', lineHeight: 1.65 }}>
+                                                        {act.description}
+                                                    </p>
+
+                                                    {/* Cost */}
+                                                    {(act.estimatedCost !== undefined || act.price) && (
+                                                        <p style={{ marginTop: '0.5rem', color: '#8A94A6', fontSize: '0.8125rem', fontWeight: 600 }}>
+                                                            Est. ${act.estimatedCost ?? act.price}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Bottom Row - Gallery */}
-                    <motion.div
-                        className="md:col-span-12 glass-card-elevated rounded-3xl overflow-hidden group relative border border-slate-200 hover:border-emerald-500/30 transition-colors duration-300"
-                        variants={itemVariants}
-                        whileHover={{ y: -5, scale: 1.005 }}
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                        <GalleryTile destination={tripData.destination} />
-                    </motion.div>
+                    {/* ── RIGHT: Sidebar ── */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'sticky', top: '6rem' }}>
+
+                        {/* Budget card */}
+                        <div className="card" style={{ padding: '1.5rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+                                <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: '1.125rem', color: '#1A2340' }}>Trip Budget</h3>
+                                <div style={{
+                                    width: '2.25rem', height: '2.25rem', borderRadius: '50%',
+                                    background: 'rgba(255,107,107,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                }}>
+                                    <DollarSign style={{ width: '1rem', height: '1rem', color: '#FF6B6B' }} />
+                                </div>
+                            </div>
+
+                            <p style={{ fontFamily: 'Fraunces, serif', fontSize: '2.5rem', fontWeight: 700, color: '#1A2340', lineHeight: 1 }}>
+                                ${(tripData.totalCost || 2500).toLocaleString()}
+                            </p>
+                            <p style={{ color: '#8A94A6', fontSize: '0.875rem', marginTop: '0.375rem', marginBottom: '1.25rem' }}>
+                                Est. total for {tripData.guests || 2} guests
+                            </p>
+
+                            {/* Budget breakdown */}
+                            {[
+                                { label: 'Accommodation', pct: 40 },
+                                { label: 'Activities', pct: 25 },
+                                { label: 'Food & Drink', pct: 25 },
+                                { label: 'Transport', pct: 10 },
+                            ].map(({ label, pct }) => (
+                                <div key={label} style={{ marginBottom: '0.75rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                                        <span style={{ fontSize: '0.8125rem', color: '#4A5568', fontWeight: 500 }}>{label}</span>
+                                        <span style={{ fontSize: '0.8125rem', color: '#8A94A6', fontWeight: 600 }}>{pct}%</span>
+                                    </div>
+                                    <div style={{ height: '4px', background: '#F0EBE0', borderRadius: '100px', overflow: 'hidden' }}>
+                                        <div style={{ height: '100%', width: `${pct}%`, background: '#FF6B6B', borderRadius: '100px' }} />
+                                    </div>
+                                </div>
+                            ))}
+
+                            <button className="btn-primary" style={{ width: '100%', marginTop: '1.25rem', justifyContent: 'center' }}>
+                                Book This Trip
+                            </button>
+                        </div>
+
+                        {/* Weather card */}
+                        <div className="card" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, #1A2340 0%, #0D1526 100%)', borderColor: 'transparent' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                                <Sun style={{ width: '1rem', height: '1rem', color: '#E8A838' }} />
+                                <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: '1rem', color: 'white' }}>Weather Forecast</h3>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                                <div>
+                                    <p style={{ fontFamily: 'Fraunces, serif', fontSize: '3rem', fontWeight: 700, color: 'white', lineHeight: 1 }}>24°C</p>
+                                    <p style={{ color: '#4ECDC4', fontWeight: 600, fontSize: '0.875rem', marginTop: '0.375rem' }}>Sunny & clear</p>
+                                </div>
+                                <Sun style={{ width: '4rem', height: '4rem', color: 'rgba(232,168,56,0.25)' }} />
+                            </div>
+                            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.75rem', marginTop: '0.875rem' }}>{tripData.destination}</p>
+                        </div>
+
+                        {/* Actions */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                            <button className="btn-outline" style={{ justifyContent: 'center', gap: '0.4rem', fontSize: '0.8125rem', padding: '0.75rem' }}>
+                                <Download style={{ width: '0.875rem', height: '0.875rem' }} /> Save PDF
+                            </button>
+                            <button className="btn-outline" style={{ justifyContent: 'center', gap: '0.4rem', fontSize: '0.8125rem', padding: '0.75rem' }}>
+                                <Share2 style={{ width: '0.875rem', height: '0.875rem' }} /> Share
+                            </button>
+                        </div>
+
+                    </div>
                 </div>
-            </motion.div>
-
-            {/* Floating Action Bar */}
-            <div className="fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 w-full max-w-md">
-                <motion.div
-                    className="glass-dark-premium px-6 py-4 rounded-full flex items-center justify-center gap-6 shadow-xl border border-slate-200"
-                    initial={{ y: 100, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.8, type: "spring", stiffness: 300, damping: 30 }}
-                >
-                    <button className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 transition-all text-sm font-medium hover:scale-110 focus-ring-inset rounded-full px-4 py-2 btn-ghost">
-                        <Download className="w-4 h-4" /> PDF
-                    </button>
-                    <div className="w-px h-5 bg-slate-200" />
-                    <button className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 transition-all text-sm font-medium hover:scale-110 focus-ring-inset rounded-full px-4 py-2 btn-ghost">
-                        <Share2 className="w-4 h-4" /> Share
-                    </button>
-                </motion.div>
             </div>
-
-        </motion.div>
+        </div>
     );
 }

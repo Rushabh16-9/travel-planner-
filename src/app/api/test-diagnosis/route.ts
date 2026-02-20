@@ -2,11 +2,19 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function GET() {
-    const results: any = {
+    interface DiagnosisResults {
+        timestamp: string;
+        keys: Record<string, string>;
+        services: Record<string, any>;
+    }
+
+    const results: DiagnosisResults = {
         timestamp: new Date().toISOString(),
         keys: {},
         services: {}
     };
+
+
 
     // 1. Check Keys
     const keys = {
@@ -34,9 +42,10 @@ export async function GET() {
             latency: `${Date.now() - geoStart}ms`,
             sample: geoData.features?.[0]?.properties?.formatted || 'No results'
         };
-    } catch (e: any) {
-        results.services.geoapify = { status: 'ERROR', error: e.message };
+    } catch (e) {
+        results.services.geoapify = { status: 'ERROR', error: e instanceof Error ? e.message : String(e) };
     }
+
 
     // 3. Test Amadeus
     const amadeusStart = Date.now();
@@ -52,9 +61,10 @@ export async function GET() {
             latency: `${Date.now() - amadeusStart}ms`,
             token_received: !!authData.access_token
         };
-    } catch (e: any) {
-        results.services.amadeus = { status: 'ERROR', error: e.message };
+    } catch (e) {
+        results.services.amadeus = { status: 'ERROR', error: e instanceof Error ? e.message : String(e) };
     }
+
 
     // 4. Test Gemini
     const geminiStart = Date.now();
@@ -71,9 +81,10 @@ export async function GET() {
             latency: `${Date.now() - geminiStart}ms`,
             output_preview: text.substring(0, 50)
         };
-    } catch (e: any) {
-        results.services.gemini = { status: 'ERROR', error: e.message };
+    } catch (e) {
+        results.services.gemini = { status: 'ERROR', error: e instanceof Error ? e.message : String(e) };
     }
+
 
     return NextResponse.json(results);
 }

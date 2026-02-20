@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     }
 
     // 1. Parallel Data Fetching
-    let geoData = await getCoordinates(query);
+    const geoData = await getCoordinates(query);
     let weatherData = null;
     let amadeusData: any[] = [];
     let destinationImage = null;
@@ -54,8 +54,9 @@ export async function POST(req: Request) {
     }
 
     if (amadeusData && amadeusData.length > 0) {
-      context += `Real Local Attractions: ${amadeusData.map((poi: any) => poi.name).join(', ')}\n`;
+      context += `Real Local Attractions: ${amadeusData.map((poi: { name: string }) => poi.name).join(', ')}\n`;
     }
+
 
     // 3. Generate Itinerary
     let tripData;
@@ -163,9 +164,10 @@ Include ${days} days with 4-5 activities per day. Keep descriptions concise.`;
           throw new Error("Ollama returned invalid JSON");
         }
 
-      } catch (ollamaError: any) {
-        console.error("Ollama Failed:", ollamaError.message);
+      } catch (ollamaError) {
+        console.error("Ollama Failed:", ollamaError instanceof Error ? ollamaError.message : String(ollamaError));
       }
+
     }
 
     if (!tripData && kimiKey) {

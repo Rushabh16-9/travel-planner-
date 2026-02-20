@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, Compass } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 
 export default function MapPlaceholder() {
     return (
