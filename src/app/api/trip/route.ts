@@ -9,8 +9,8 @@ const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_KEY || '');
 
 export async function POST(req: Request) {
   try {
-    const { destination, days = 3, budget } = await req.json();
-    console.log("🚀 API Received:", destination, "Days:", days, "Budget:", budget);
+    const { destination, days = 3, budget, origin, fromDate, toDate, guests, currency: reqCurrency } = await req.json();
+    console.log("🚀 API Received:", destination, "Days:", days, "Origin:", origin, "Currency:", reqCurrency);
 
     const query = destination;
 
@@ -62,18 +62,25 @@ export async function POST(req: Request) {
     let tripData;
     const ollamaModel = process.env.OLLAMA_MODEL;
     const kimiKey = process.env.KIMI_API_KEY;
+    const groqKey = process.env.GROQ_API_KEY;
+    const currencyFinal = reqCurrency || currencyCode;
+    const guestsFinal = guests || 2;
 
     // Prompt Template
-    const systemPrompt = "You are a travel assistant. Return ONLY valid JSON. No markdown.";
+    const systemPrompt = "You are a travel assistant. Return ONLY valid JSON. No markdown, no code fences.";
     const userPrompt = `Create a ${days}-day trip itinerary for "${query}".
 Context: ${context}
+${origin ? `Travelling from: ${origin}` : ''}
+Guests: ${guestsFinal}
+Currency: ${currencyFinal}
+${fromDate ? `Travel dates: ${fromDate} to ${toDate}` : ''}
 
-Output format:
+Output format (return ONLY this JSON, nothing else):
 {
   "destination": "${geoData?.formatted || query}",
   "duration": ${days},
   "totalCost": ${budgetAmount},
-  "currency": "${currencyCode}",
+  "currency": "${currencyFinal}",
   "itinerary": [
     {
       "day": 1,
@@ -83,17 +90,55 @@ Output format:
           "time": "09:00 AM",
           "title": "Activity Name",
           "description": "Brief description",
-          "type": "Adventure",
-          "price": 50,
+          "vibe": "Culture",
+          "estimatedCost": 50,
           "importance": "High"
         }
       ]
     }
   ]
 }
-Include ${days} days with 4-5 activities per day. Keep descriptions concise.`;
+Include ${days} days with 4-5 activities per day. Vibe options: Adventure, Foodie, Culture, Chill. Keep descriptions concise but engaging.`;
 
-    // --- Priority 1: Ollama (Local / Cloud Native) ---
+    // --- Priority 1: Groq (Fast & Free) ---
+    if (groqKey) {
+      try {
+        console.log("🚀 Trying Groq: llama-3.3-70b-versatile");
+        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${groqKey}`,
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+            temperature: 0.4,
+            max_tokens: 4096,
+          }),
+        });
+
+        const groqData = await groqRes.json();
+        if (!groqRes.ok) throw new Error(groqData.error?.message || 'Groq API error');
+
+        const text = groqData.choices[0].message.content.trim();
+        const firstOpen = text.indexOf('{');
+        const lastClose = text.lastIndexOf('}');
+        if (firstOpen !== -1 && lastClose > firstOpen) {
+          tripData = JSON.parse(text.substring(firstOpen, lastClose + 1));
+          console.log("✅ Groq succeeded");
+        } else {
+          throw new Error('Groq returned no JSON');
+        }
+      } catch (groqError) {
+        console.error("Groq Failed:", groqError instanceof Error ? groqError.message : groqError);
+      }
+    }
+
+    // --- Priority 2: Ollama (Local / Cloud Native) ---
     if (ollamaModel) {
       try {
         const baseUrl = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
